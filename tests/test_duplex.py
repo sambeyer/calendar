@@ -36,9 +36,8 @@ def test_sheet_order_is_cover_then_month_and_back_pairs(make_repo: MakeRepo) -> 
     root = _named_birds(make_repo)
     _, plans = _plans(root)
     kinds = [p.kind for p in plans]
-    assert kinds[:2] == ["cover", "blank"]
-    expected_pairs = ["month", "next_photo"] * 12
-    assert kinds[2:] == expected_pairs
+    assert kinds[:2] == ["cover", "next_photo"]  # the cover's back shows January
+    assert kinds[2:] == ["month", "next_photo"] * 12
     assert len(plans) == 26
 
 
@@ -47,7 +46,10 @@ def test_back_of_each_month_shows_the_next_months_photo(make_repo: MakeRepo) -> 
     _, plans = _plans(root)
     months = [p for p in plans if p.kind == "month"]
     backs = [p for p in plans if p.kind == "next_photo"]
-    for month_plan, back in zip(months, backs, strict=True):
+    cover_back = backs[0]
+    assert cover_back.month == 1
+    assert _photo_file(cover_back) == "IMG_01.jpg"
+    for month_plan, back in zip(months, backs[1:], strict=True):
         this = month_plan.month
         assert this is not None
         assert back.month == this % 12 + 1
@@ -96,3 +98,15 @@ def test_single_sided_keeps_one_sheet_per_month(make_repo: MakeRepo) -> None:
     _, plans = _plans(root)
     assert len(plans) == 13
     assert all(p.kind != "blank" and p.kind != "next_photo" for p in plans)
+
+
+def test_hanger_hole_is_on_every_sheet(repo_root: Path) -> None:
+    """hanger.pages covers every sheet, front and back, so each sheet hangs from the photo top."""
+    ctx, plans = _plans(repo_root)
+    offset = ctx.config.hanger.offset_mm  # type: ignore[attr-defined]
+    for plan in plans:
+        hangers = [
+            op for op in plan.guides
+            if isinstance(op, Circle) and abs(op.cy - offset) < 1e-6
+        ]
+        assert len(hangers) == 1, f"{plan.kind} {plan.month} has no hanger hole"

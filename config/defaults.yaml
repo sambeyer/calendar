@@ -50,7 +50,7 @@ hanger:
   diameter_mm: 6  # TODO(printer)
   x_mm: 210  # TODO(printer)  centre of a 420 mm sheet
   offset_mm: 5  # TODO(printer)  hangs above the photo, in the top margin
-  pages: [cover]  # TODO(printer)
+  pages: [cover, months, back, blank]  # TODO(printer)  every sheet, front and back
 
 sides:
   mode: duplex  # TODO(printer)

@@ -109,17 +109,22 @@ PDF dates (default: 2000-01-01).
   the photo (`hanger.offset_mm`, in the top margin). The calendar grid and caption fill the area
   below the band.
 - **Back:** `sides.back_content: next_month_photo` prints the next month's photo above the band,
-  with its caption below. December's back shows January's photo. The cover's back is blank.
-- **Order:** cover, blank back, then for each month the front followed by its back, then the
+  with its caption below. December's back shows January's photo, and the cover's back shows
+  January's photo too.
+- **Order:** cover and its back, then for each month the front followed by its back, then the
   holiday page and its blank back when enabled. Single-sided prints one sheet per month.
+- **Hanger:** `hanger.pages` lists which sheets get a hanger hole. The default is every sheet,
+  front and back.
 - Caption (bird name, scientific name, description, credit) goes beside the grid by default,
   or below it (`layout.caption.placement`).
 - Grid options: Sunday (default) or Monday start, ISO week numbers, greyed adjacent days, weekend
   shading, auto (5 or 6) or fixed six rows, day names as `Mon`, `M` or `Monday`.
 - Text shrinks to its minimum size, then the build fails naming the month and field. Text is
   never truncated.
-- The photo area is about 400 × 122 mm, so a 3:2 photo crops about 54% of its height. Expect
-  `check-photos` crop warnings until the photo area or aspect is decided.
+- The photo area is about 400 × 122 mm. A 3:2 photo filling that width would be 267 mm tall,
+  so `fill` shows only the middle 122 mm and crops about 54% of the height. `fit` shows the
+  whole photo, centred with white space at each side. Set `fit` per bird in `birds.yaml`.
+  Expect `check-photos` crop warnings while photos use `fill`.
 - Guides (trim, bleed, safe area, keep-clear zone, binding holes, hanger) appear only in
   `draft` and `proof`. Trim marks, if enabled, appear in every mode.
 

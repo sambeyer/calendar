@@ -186,7 +186,11 @@ def plan_pages(
             cover = cover_page(ctx, _bird_view(cfg, data, cfg.pages.cover_month, statuses))
             plans.append(cover)
             if duplex:
-                plans.append(blank_page(ctx))
+                if back_photos:
+                    # The cover's back shows January's photo, as the back of a sheet for the next month.
+                    plans.append(next_month_page(ctx, _bird_view(cfg, data, 1, statuses), year, 1))
+                else:
+                    plans.append(blank_page(ctx))
         labels = _day_labels(data)
         for grid in year_grids(year, cfg.grid.week_start, cfg.grid.rows):
             plans.append(month_page(ctx, grid, _bird_view(cfg, data, grid.month, statuses), labels))

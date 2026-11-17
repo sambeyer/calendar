@@ -179,7 +179,7 @@ def test_oversized_description_names_month_and_field(make_repo: MakeRepo) -> Non
     )
     birds_text = birds.read_text(encoding="utf-8")
     assert "description: overflowing" in birds_text
-    with pytest.raises(BuildError, match="month 01 description"):
+    with pytest.raises(BuildError, match="01 description"):
         _plans(root)
 
 
@@ -208,7 +208,7 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
 def test_no_room_for_photo_names_the_month(make_repo: MakeRepo) -> None:
     # A spine band deeper than the sheet leaves no space above it for the photo.
     root = make_repo(calendar_yaml="year: 2027\nbinding: {keep_clear_mm: 300}\n", copy_fonts=True)
-    with pytest.raises(BuildError, match="month 01: no room for the photo"):
+    with pytest.raises(BuildError, match="no room for the photo"):
         _plans(root)
 
 

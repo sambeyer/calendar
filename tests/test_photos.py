@@ -49,11 +49,11 @@ def test_print_build_uses_real_photos_and_embeds_source_bytes(
     root, photos = photo_repo
     result = build_calendar(root, 2027, "print", out_dir=tmp_path)
     assert result.pages == 26
-    # Each month sheet shows its photo on the front and the next month's on the back of the
-    # previous sheet, so every photo is embedded twice. The cover adds one more January.
+    # Every photo is embedded twice: on its month's front and on the back of the previous
+    # sheet. January is embedded twice more, on the cover front and the cover back.
     expected = Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
     expected += Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
-    expected[sha256_file(photos / "IMG_01.jpg")] += 1
+    expected[sha256_file(photos / "IMG_01.jpg")] += 2
     assert embedded_jpeg_hashes(result.path) == expected
 
 
@@ -67,11 +67,11 @@ def test_pdfimages_extracts_identical_jpeg_bytes(
     out.mkdir()
     subprocess.run(["pdfimages", "-all", str(result.path), str(out / "img")], check=True)
     extracted = sorted(out.glob("img-*.jpg"))
-    assert len(extracted) == 25  # fronts, backs and the cover
+    assert len(extracted) == 26  # fronts, backs, and January on the cover front and back
     got = Counter(hashlib.sha256(p.read_bytes()).hexdigest() for p in extracted)
     expected = Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
     expected += Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
-    expected[sha256_file(photos / "IMG_01.jpg")] += 1
+    expected[sha256_file(photos / "IMG_01.jpg")] += 2
     assert got == expected
 
 

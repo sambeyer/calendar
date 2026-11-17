@@ -664,6 +664,11 @@ def next_month_page(
     where = f"back of sheet for {next_month:02d}"
     content = content_rect(cfg, ctx.geom)
     photo_rect, cal = regions(cfg, ctx.geom)
+    if photo_rect.h < MIN_PHOTO_MM:
+        raise LayoutError(
+            f"{where}: no room for the photo: {photo_rect.h:.1f} mm available, "
+            f"{MIN_PHOTO_MM:.0f} mm needed. Reduce the binding keep-clear depth."
+        )
     ops: list[Op] = [_photo_op(ctx, photo_rect, bird)]
     heading_rect = Rect(cal.x, cal.y, cal.w, sp.title_height_mm)
     heading = _text_op(
@@ -683,6 +688,7 @@ def next_month_page(
         cal.bottom - heading_rect.bottom - sp.gap_mm,
     )
     ops.extend(_caption_ops(ctx, caption_rect, bird, where))
+    _hanger_clear_check(cfg, ctx.geom, content, "months")
     guides = _month_guides(ctx, content)
     return PagePlan(
         kind="next_photo", month=next_month, ops=tuple(ops), guides=tuple(guides), content=content
