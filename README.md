@@ -1,9 +1,9 @@
 # birdcal
 
-Builds a print-ready wall calendar PDF from bird photographs. A3 landscape sheets,
-bound along the middle: each sheet has the month's photo above the spine and the calendar
-grid below it, and its back shows the next month's photo. Year-agnostic: the same code builds
-any year from `calendars/<year>/`.
+Builds a print-ready wall calendar PDF from bird photographs. Landscape sheets, bound along
+the top long edge and duplex printed. Each photo fills a whole page, and each month's calendar
+grid is on the page after the photo, so every sheet's back shows the next month's photo.
+Year-agnostic: the same code builds any year from `calendars/<year>/`.
 
 **Status:** all planned stages are built: config, layout, photo pipeline, release and
 reproduce. The first real print needs the printer spec confirmed and the holiday list verified.
