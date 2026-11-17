@@ -17,9 +17,9 @@ paths:
   photos_dir: null
 
 page:
-  width_mm: 297  # TODO(printer)  A3 placeholder
-  height_mm: 420  # TODO(printer)  A3 placeholder
-  orientation: portrait  # TODO(printer)
+  width_mm: 420  # TODO(printer)  A3 landscape placeholder
+  height_mm: 297  # TODO(printer)  A3 landscape placeholder
+  orientation: landscape  # TODO(printer)
 
 bleed_mm: 3  # TODO(printer)
 safe_margin_mm: 10  # TODO(printer)
@@ -32,15 +32,15 @@ trim_marks:
 
 binding:
   type: spiral  # TODO(printer)
-  edge: top  # TODO(printer)
-  keep_clear_mm: 25  # TODO(printer)
+  edge: middle  # TODO(printer)  top | bottom | middle (spine across the middle)
+  keep_clear_mm: 25  # TODO(printer)  depth of the band around the spine
   holes:
     diameter_mm: 4.8  # TODO(printer)
     pattern:
       pitch_mm: 8.47  # TODO(printer)  3:1 spiral, i.e. 3 holes per inch
       holes_per_inch: null
       count: null
-    edge_offset_mm: 6  # TODO(printer)
+    edge_offset_mm: 6  # TODO(printer)  top/bottom only; ignored for middle
     end_margin_mm: 10  # TODO(printer)
     centre: true  # TODO(printer)
 
@@ -48,14 +48,14 @@ hanger:
   enabled: true  # TODO(printer)
   shape: hole  # TODO(printer)
   diameter_mm: 6  # TODO(printer)
-  x_mm: 148.5  # TODO(printer)
-  offset_mm: 8  # TODO(printer)
+  x_mm: 210  # TODO(printer)  centre of a 420 mm sheet
+  offset_mm: 5  # TODO(printer)  hangs above the photo, in the top margin
   pages: [cover]  # TODO(printer)
 
 sides:
-  mode: single  # TODO(printer)
-  duplex_flip: long_edge  # TODO(printer)
-  back_content: blank  # TODO(printer)
+  mode: duplex  # TODO(printer)
+  duplex_flip: long_edge  # TODO(printer)  confirm with the printer for a middle spine
+  back_content: next_month_photo  # blank | next_month_photo
 
 colour:
   mode: rgb  # TODO(printer)
@@ -64,9 +64,9 @@ colour:
 # Design choices (not printer requirements, so no TODO marker).
 layout:
   mode: photo_over_grid  # facing_pages is declared for later; not implemented in v1
-  photo_height_mm: 170
+  photo_height_mm: 170  # used for top/bottom binding only; middle binding fills its region
   caption:
-    placement: below_grid  # below_grid | beside_grid
+    placement: beside_grid  # beside_grid | below_grid
   spacing:
     title_height_mm: 14
     header_height_mm: 6
@@ -87,7 +87,7 @@ photo:
   max_crop_fraction: 0.15  # warn when a fill crop removes more than this share of an axis
 
 grid:
-  week_start: monday  # monday | sunday (Australian default: monday)
+  week_start: sunday  # monday | sunday
   week_numbers: false  # ISO-8601 week number of the Monday in each row
   show_adjacent_days: true  # greyed days from the previous / next month
   adjacent_day_colour: "#9E9E9E"

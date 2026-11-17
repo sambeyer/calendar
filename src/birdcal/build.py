@@ -32,8 +32,10 @@ from birdcal.layout import (
     PagePlan,
     back_page,
     binding_and_hanger_ops,
+    blank_page,
     cover_page,
     month_page,
+    next_month_page,
     trim_mark_ops,
 )
 from birdcal.photos import (
@@ -176,25 +178,50 @@ def plan_pages(
     statuses = statuses or {}
     registry = register_fonts(cfg.fonts, root)
     ctx = LayoutContext(config=cfg, geom=geometry_for(cfg), registry=registry, year=year)
+    duplex = cfg.sides.mode == "duplex"
+    back_photos = duplex and cfg.sides.back_content == "next_month_photo"
     plans: list[PagePlan] = []
     try:
         if cfg.pages.cover:
             cover = cover_page(ctx, _bird_view(cfg, data, cfg.pages.cover_month, statuses))
-            plans.append(_with_features(ctx, cover, "cover"))
+            plans.append(cover)
+            if duplex:
+                plans.append(blank_page(ctx))
         labels = _day_labels(data)
         for grid in year_grids(year, cfg.grid.week_start, cfg.grid.rows):
-            plan = month_page(ctx, grid, _bird_view(cfg, data, grid.month, statuses), labels)
-            plans.append(_with_features(ctx, plan, "months"))
+            plans.append(month_page(ctx, grid, _bird_view(cfg, data, grid.month, statuses), labels))
+            if duplex:
+                if back_photos:
+                    next_month = grid.month % 12 + 1
+                    next_year = year + 1 if grid.month == 12 else year
+                    back = next_month_page(
+                        ctx, _bird_view(cfg, data, next_month, statuses), next_year, next_month
+                    )
+                    plans.append(back)
+                else:
+                    plans.append(blank_page(ctx))
         if cfg.pages.back:
-            plans.append(_with_features(ctx, back_page(ctx, _back_entries(data)), "back"))
+            plans.append(back_page(ctx, _back_entries(data)))
+            if duplex:
+                plans.append(blank_page(ctx))
     except LayoutError as exc:
         raise BuildError(f"layout failed: {exc}") from exc
-    return ctx, plans
+    return ctx, [_with_features(ctx, p) for p in plans]
 
 
-def _with_features(ctx: LayoutContext, plan: PagePlan, kind: str) -> PagePlan:
+# Which hanger.pages entry each plan kind counts as. A back sheet belongs to its month.
+_HANGER_KIND: dict[str, str] = {
+    "cover": "cover",
+    "month": "months",
+    "next_photo": "months",
+    "back": "back",
+    "blank": "blank",
+}
+
+
+def _with_features(ctx: LayoutContext, plan: PagePlan) -> PagePlan:
     """Attach hanger and binding guides (drawn only in guided modes) to a page."""
-    extra = binding_and_hanger_ops(ctx, kind)
+    extra = binding_and_hanger_ops(ctx, _HANGER_KIND[plan.kind])
     return PagePlan(
         kind=plan.kind,
         month=plan.month,

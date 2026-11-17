@@ -104,7 +104,7 @@ def test_every_page_respects_safe_area_keep_clear_and_text_fit(
 
     root = make_repo(calendar_yaml="year: 2027\n" + yaml.safe_dump(overrides), copy_fonts=True)
     ctx, plans = _plans(root)
-    assert len(plans) == 13
+    assert len(plans) == 26  # cover + blank back, 12 x (month + back), back page + blank
     for plan in plans:
         _assert_page_invariants(ctx, plan)
 
@@ -124,7 +124,7 @@ def test_other_years_lay_out_cleanly(make_repo: MakeRepo, year: int) -> None:
         f"year: {year}\nregion: AU-VIC\nstatus: proposed\nholidays: []\n", encoding="utf-8"
     )
     ctx, plans = _plans(root, year)
-    assert len(plans) == 13
+    assert len(plans) == 26  # cover + blank back, 12 x (month + back), back page + blank
     for plan in plans:
         _assert_page_invariants(ctx, plan)
 
@@ -137,9 +137,11 @@ def test_hole_pattern_is_inside_edge_and_clear_of_content(repo_root: Path) -> No
     centres = hole_centres(cfg, geom)
     assert len(centres) >= 2
     radius = cfg.binding.holes.diameter_mm / 2  # type: ignore[union-attr]
+    band = cfg.binding.keep_clear_mm
     for x, y in centres:
         assert 0 < x < geom.trim_w
-        assert y + radius <= cfg.binding.keep_clear_mm
+        # Middle spine: holes run along the sheet's centre line, inside the band.
+        assert abs(y - geom.trim_h / 2) + radius <= band / 2
     # 3:1 spiral: pitch is 25.4 / 3 mm; check the spacing of the first two holes.
     spacing = centres[1][0] - centres[0][0]
     assert abs(spacing - 8.47) < 1e-6
@@ -182,7 +184,7 @@ def test_oversized_description_names_month_and_field(make_repo: MakeRepo) -> Non
 
 
 def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
-    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 9
+    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 26
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(
@@ -194,7 +196,7 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
         encoding="utf-8",
     )
     ctx, plans = _plans(root)
-    jan = plans[1]
+    jan = next(p for p in plans if p.kind == "month" and p.month == 1)
     desc = [op for op in jan.ops if isinstance(op, TextOp) and op.font.endswith("Regular")]
     sizes = sorted({op.size_pt for op in desc})
     assert sizes
@@ -203,9 +205,10 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
         _assert_page_invariants(ctx, plan)
 
 
-def test_photo_too_tall_names_the_month(make_repo: MakeRepo) -> None:
-    root = make_repo(calendar_yaml="year: 2027\nlayout: {photo_height_mm: 300}\n", copy_fonts=True)
-    with pytest.raises(BuildError, match="month 01: no room for the calendar"):
+def test_no_room_for_photo_names_the_month(make_repo: MakeRepo) -> None:
+    # A spine band deeper than the sheet leaves no space above it for the photo.
+    root = make_repo(calendar_yaml="year: 2027\nbinding: {keep_clear_mm: 300}\n", copy_fonts=True)
+    with pytest.raises(BuildError, match="month 01: no room for the photo"):
         _plans(root)
 
 
@@ -222,18 +225,18 @@ def test_print_mode_refuses_placeholder_images(repo_root: Path, tmp_path: Path) 
 
 def test_draft_build_writes_cover_twelve_months(repo_root: Path, tmp_path: Path) -> None:
     result = build_calendar(repo_root, 2027, "draft", out_dir=tmp_path)
-    assert result.pages == 13
+    assert result.pages == 26
     assert result.path.exists()
     assert any("placeholder images used" in w for w in result.warnings)
 
 
-def test_back_page_adds_a_fourteenth_page(make_repo: MakeRepo, tmp_path: Path) -> None:
+def test_back_page_adds_two_sheets(make_repo: MakeRepo, tmp_path: Path) -> None:
     root = make_repo(calendar_yaml="year: 2027\npages: {back: true}\n", copy_fonts=True)
     result = build_calendar(root, 2027, "draft", out_dir=tmp_path)
-    assert result.pages == 14
+    assert result.pages == 28  # 26 plus the back page and its blank reverse
 
 
 def test_config_error_is_build_error(make_repo: MakeRepo, tmp_path: Path) -> None:
-    root = make_repo(calendar_yaml="year: 2027\nsides: {mode: duplex}\n", copy_fonts=True)
-    with pytest.raises(BuildError, match="duplex"):
+    root = make_repo(calendar_yaml="year: 2027\nlayout: {mode: facing_pages}\n", copy_fonts=True)
+    with pytest.raises(BuildError, match="facing_pages"):
         build_calendar(root, 2027, "draft", out_dir=tmp_path)

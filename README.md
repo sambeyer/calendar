@@ -1,8 +1,9 @@
 # birdcal
 
-Builds a print-ready wall calendar PDF from bird photographs. One PDF page per month
-(photo over a calendar grid), plus an optional cover and back page. Year-agnostic: the same
-code builds any year from `calendars/<year>/`.
+Builds a print-ready wall calendar PDF from bird photographs. A3 landscape sheets,
+bound along the middle: each sheet has the month's photo above the spine and the calendar
+grid below it, and its back shows the next month's photo. Year-agnostic: the same code builds
+any year from `calendars/<year>/`.
 
 **Status:** all planned stages are built: config, layout, photo pipeline, release and
 reproduce. The first real print needs the printer spec confirmed and the holiday list verified.
@@ -56,8 +57,8 @@ Values that depend on the printer are marked `# TODO(printer)` in `defaults.yaml
 `printer_spec_confirmed` must be set to `true` once they are confirmed. Until then,
 `release` will refuse to run.
 
-Declared but not implemented in v1, and rejected with a clear error if enabled: duplex
-printing, `facing_pages` layout, CMYK colour, left-edge binding, school term dates.
+Declared but not implemented in v1, and rejected with a clear error if enabled: `facing_pages`
+layout, CMYK colour, left-edge binding, school term dates.
 
 ## Photos
 
@@ -100,16 +101,29 @@ PDF dates (default: 2000-01-01).
 
 ## Layout
 
-- Content sits inside `safe_margin_mm`, below the binding keep-clear zone (`binding.keep_clear_mm`).
-- Caption (bird name, scientific name, description, credit) goes below or beside the grid.
-- Grid options: Monday or Sunday start, ISO week numbers, greyed adjacent days, weekend
+- **Sheet:** 420 × 297 mm landscape (A3), with 3 mm bleed and trim marks.
+- **Spine:** `binding.edge: middle` runs the spiral across the middle of the sheet. The
+  keep-clear band (`binding.keep_clear_mm`) is centred on the middle line, and the holes sit on
+  that line. Nothing is printed inside the band.
+- **Front:** the month's photo fills the area above the band. The hanger hole sits at the top of
+  the photo (`hanger.offset_mm`, in the top margin). The calendar grid and caption fill the area
+  below the band.
+- **Back:** `sides.back_content: next_month_photo` prints the next month's photo above the band,
+  with its caption below. December's back shows January's photo. The cover's back is blank.
+- **Order:** cover, blank back, then for each month the front followed by its back, then the
+  holiday page and its blank back when enabled. Single-sided prints one sheet per month.
+- Caption (bird name, scientific name, description, credit) goes beside the grid by default,
+  or below it (`layout.caption.placement`).
+- Grid options: Sunday (default) or Monday start, ISO week numbers, greyed adjacent days, weekend
   shading, auto (5 or 6) or fixed six rows, day names as `Mon`, `M` or `Monday`.
 - Text shrinks to its minimum size, then the build fails naming the month and field. Text is
   never truncated.
+- The photo area is about 400 × 122 mm, so a 3:2 photo crops about 54% of its height. Expect
+  `check-photos` crop warnings until the photo area or aspect is decided.
 - Guides (trim, bleed, safe area, keep-clear zone, binding holes, hanger) appear only in
   `draft` and `proof`. Trim marks, if enabled, appear in every mode.
 
 ## Not yet built
 
 - **`new-year <year>`:** scaffolds `calendars/<year>/` from the previous year with empty bird slots.
-- **CMYK, duplex, `facing_pages`, left-edge binding, school terms:** declared, not implemented.
+- **CMYK, `facing_pages`, left-edge binding, school terms:** declared, not implemented.

@@ -35,7 +35,7 @@ class _Model(BaseModel):
 
 Orientation = Literal["portrait", "landscape"]
 BindingType = Literal["spiral", "wire_o", "saddle_stitch", "glue", "none"]
-Edge = Literal["top", "left", "bottom"]
+Edge = Literal["top", "left", "bottom", "middle"]
 PageKind = Literal["cover", "months", "back"]
 
 
@@ -110,7 +110,9 @@ class Hanger(_Model):
 class Sides(_Model):
     mode: Literal["single", "duplex"]
     duplex_flip: Literal["long_edge", "short_edge"]
-    back_content: Literal["blank", "notes"]
+    back_content: Literal["blank", "next_month_photo"] = Field(
+        description="what prints on the back of each month sheet"
+    )
 
 
 class Colour(_Model):
@@ -371,10 +373,6 @@ def _format_error(err: Any, provenance: dict[str, str]) -> str:
 
 def check_supported(config: Config) -> None:
     """Refuse configurations that are declared in the schema but not built in v1."""
-    if config.sides.mode == "duplex":
-        raise NotImplementedError(
-            "sides.mode: duplex is declared but not implemented in v1; use 'single'"
-        )
     if config.layout.mode == "facing_pages":
         raise NotImplementedError(
             "layout.mode: facing_pages is declared but not implemented in v1; use 'photo_over_grid'"

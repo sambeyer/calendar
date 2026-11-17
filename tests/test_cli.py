@@ -36,10 +36,10 @@ def test_config_error_exits_two(make_repo: MakeRepo, capsys: pytest.CaptureFixtu
     assert "configuration error" in capsys.readouterr().err
 
 
-def test_duplex_is_refused_with_clear_message(
+def test_facing_pages_is_refused_with_clear_message(
     make_repo: MakeRepo, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    root = make_repo(calendar_yaml="year: 2027\nsides: {mode: duplex}\n")
+    root = make_repo(calendar_yaml="year: 2027\nlayout: {mode: facing_pages}\n")
     code = main(["--root", str(root), "validate", "2027"])
     assert code == 2
-    assert "duplex is declared but not implemented" in capsys.readouterr().err
+    assert "facing_pages is declared but not implemented" in capsys.readouterr().err

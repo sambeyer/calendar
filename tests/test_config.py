@@ -12,8 +12,11 @@ def test_repo_config_loads_for_2027(repo_root: Path) -> None:
     loaded = load_config(repo_root, 2027)
     assert loaded.config.year == 2027
     assert loaded.config.printer_spec_confirmed is False
-    assert loaded.config.page.width_mm == 297
-    assert loaded.config.page.orientation == "portrait"
+    assert loaded.config.page.width_mm == 420
+    assert loaded.config.page.height_mm == 297
+    assert loaded.config.page.orientation == "landscape"
+    assert loaded.config.binding.edge == "middle"
+    assert loaded.config.sides.mode == "duplex"
 
 
 def test_every_todo_printer_key_is_a_leaf_value(repo_root: Path) -> None:
@@ -74,7 +77,7 @@ def test_unknown_key_is_rejected_so_typos_fail_loudly(make_repo: MakeRepo) -> No
 
 
 def test_orientation_must_match_dimensions(make_repo: MakeRepo) -> None:
-    root = make_repo(calendar_yaml="year: 2027\npage: {orientation: landscape}\n")
+    root = make_repo(calendar_yaml="year: 2027\npage: {orientation: portrait}\n")
     with pytest.raises(ConfigError, match="contradicts"):
         load_config(root, 2027)
 
@@ -112,7 +115,6 @@ def test_min_font_size_cannot_exceed_size(make_repo: MakeRepo) -> None:
 @pytest.mark.parametrize(
     "override",
     [
-        "sides: {mode: duplex}",
         "layout: {mode: facing_pages}",
         "colour: {mode: cmyk}",
         "school_terms: {enabled: true}",
