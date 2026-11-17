@@ -4,8 +4,8 @@ Builds a print-ready wall calendar PDF from bird photographs. One PDF page per m
 (photo over a calendar grid), plus an optional cover and back page. Year-agnostic: the same
 code builds any year from `calendars/<year>/`.
 
-**Status:** stages 1–2 are done (config, dates, layout, draft and proof builds). The
-photo pipeline, `release` and `reproduce` are not built yet. See [Not yet built](#not-yet-built).
+**Status:** all planned stages are built: config, layout, photo pipeline, release and
+reproduce. The first real print needs the printer spec confirmed and the holiday list verified.
 
 ## Setup
 
@@ -22,16 +22,21 @@ uv run ruff check       # lint
 ## Commands
 
 ```sh
-uv run birdcal validate 2027                # check config and data; lists printer placeholders
-uv run birdcal build 2027 --mode draft      # placeholder images, guides on
-uv run birdcal build 2027 --mode proof      # guides on (placeholder images until stage 3)
-uv run birdcal build 2027 --mode print      # refused until real photos exist
+uv run birdcal validate 2027                 # check config and data; lists printer placeholders
+uv run birdcal lock-photos 2027              # hash the photos and write calendars/2027/photos.lock
+uv run birdcal check-photos 2027             # PPI, crop and colour for each placed photo
+uv run birdcal build 2027 --mode draft       # placeholders allowed; guides on
+uv run birdcal build 2027 --mode proof       # real photos where present; guides on
+uv run birdcal build 2027 --mode print       # real photos only; no guides
+uv run birdcal release 2027                  # print PDF, build-info.json, annotated tag (never pushes)
+uv run birdcal reproduce 2027 [--tag TAG]    # rebuild the latest (or given) tag and compare
 ```
 
-Output goes to `build/<year>/calendar-<year>-<mode>.pdf` (git-ignored).
+Output goes to `build/<year>/` (git-ignored): `calendar-<year>-<mode>.pdf`, plus
+`build-info.json` and `tag-message.txt` after a release.
 
-Exit codes: `0` ok (warnings allowed), `1` validation or build error, `2` configuration
-could not be loaded.
+Exit codes: `0` ok (warnings allowed), `1` validation, build or release refused, `2`
+configuration could not be loaded.
 
 Use `--root PATH` to point at a different repository root.
 
@@ -54,6 +59,37 @@ Values that depend on the printer are marked `# TODO(printer)` in `defaults.yaml
 Declared but not implemented in v1, and rejected with a clear error if enabled: duplex
 printing, `facing_pages` layout, CMYK colour, left-edge binding, school term dates.
 
+## Photos
+
+- Photos stay out of git. Set `paths.photos_dir` in `local.yaml`.
+- `calendars/<year>/photos.lock` records each photo's SHA-256, pixel size, colour profile and
+  EXIF orientation. Every build checks the files against it. A changed or unlocked file is an
+  error in every mode. A missing file is a placeholder in draft and proof, and refuses print.
+- Photos must be 8-bit RGB JPEGs with EXIF orientation 1 (bake rotation in at export).
+- The JPEG bytes are embedded unchanged (`DCTDecode`), cropped by a clip path, never
+  resampled or upscaled. Each build checks the PDF's embedded streams against the source hashes
+  and removes the output if they differ.
+- `check-photos` warns when effective PPI is below `photo.ppi.warn_below` (200), or when a fill
+  crop removes more than `photo.max_crop_fraction` (15%) of an axis. It also warns when the
+  profile is not `colour.profile`.
+- Colour: reportlab cannot carry the JPEG's ICC profile, so images are declared `DeviceRGB`.
+  Export from Lightroom in sRGB. `colour.profile` must match the profile name `check-photos`
+  reports.
+
+## Release and reproduce
+
+`release` refuses unless all of these hold: a clean git tree, `printer_spec_confirmed: true`,
+the holiday list verified, validation without errors, and every print photo verified. It then
+builds the print PDF, writes `build/<year>/build-info.json` (commit, config hash, `photos.lock`
+hash, font hashes, `uv.lock` hash, Python and library versions, PDF SHA-256) and creates an
+annotated tag: `calendar-<year>`, then `-r2`, `-r3`… for re-issues. The tag message holds the
+PDF hash, the key print values and the full build-info, so any clone can check it.
+
+`reproduce` checks out the tag in a temporary worktree and runs that tag's own code under its
+`uv.lock` (`uv run --frozen`). It rebuilds and reports MATCH, or each field that differs.
+Output is deterministic: the same inputs give the same bytes, and `SOURCE_DATE_EPOCH` sets the
+PDF dates (default: 2000-01-01).
+
 ## Per-year data
 
 | File | Contents |
@@ -75,12 +111,5 @@ printing, `facing_pages` layout, CMYK colour, left-edge binding, school term dat
 
 ## Not yet built
 
-- **Photo pipeline:** `photos.lock` (SHA-256, pixel size and colour profile per photo),
-  `check-photos` (effective PPI, crop safety), `lock-photos`, and lossless embedding of the
-  original JPEG bytes with verification.
-- **`release <year>`:** refuses unless `printer_spec_confirmed` is true, the holiday list is
-  verified, the working tree is clean and validation passes. Then builds the print PDF,
-  writes `build-info.json`, and creates an annotated tag `calendar-<year>[-rN]`. It never pushes.
-- **`reproduce <year>`:** rebuilds a tag in a temporary worktree and compares SHA-256.
 - **`new-year <year>`:** scaffolds `calendars/<year>/` from the previous year with empty bird slots.
-- Deterministic output (`SOURCE_DATE_EPOCH`) and a regression hash test.
+- **CMYK, duplex, `facing_pages`, left-edge binding, school terms:** declared, not implemented.

@@ -1,17 +1,20 @@
-"""Build orchestration: config + data -> plans -> PDF.
+"""Build orchestration: config + data + photos -> plans -> PDF.
 
 Modes:
-    draft  guides on, placeholder images allowed
-    proof  guides on, placeholder images allowed with a warning
-    print  guides off, placeholder images REFUSED
+    draft  guides on; a missing photo becomes a labelled placeholder
+    proof  guides on; a missing photo becomes a placeholder, with a warning
+    print  guides off; every month needs a verified photo, or the build is refused
 
-Stage 2 has no real-photo pipeline yet, so every photo is a placeholder. Print builds are
-therefore refused until stage 3 supplies real, verified photos.
+Every build checks the photos on disk against ``photos.lock``. A changed or unlocked file
+is always an error. After rendering, the PDF's embedded JPEG streams are compared with the
+source hashes; any difference fails the build and removes the output.
 """
 
 from __future__ import annotations
 
 import datetime as dt
+from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
@@ -19,10 +22,11 @@ from typing import Literal
 from birdcal.config import Config, ConfigError, LoadedConfig, load_config
 from birdcal.data import YearData, load_year_data, validate_year_data
 from birdcal.dates import year_grids
-from birdcal.geometry import SheetGeometry
+from birdcal.geometry import SheetGeometry, effective_ppi, placement_for
 from birdcal.layout import (
     BirdView,
     DayLabels,
+    ImageOp,
     LayoutContext,
     LayoutError,
     PagePlan,
@@ -31,6 +35,15 @@ from birdcal.layout import (
     cover_page,
     month_page,
     trim_mark_ops,
+)
+from birdcal.photos import (
+    LOCK_FILENAME,
+    LockRecord,
+    PhotoError,
+    PhotoStatus,
+    check_against_lock,
+    embedded_jpeg_hashes,
+    read_lock,
 )
 from birdcal.render import PdfRenderer
 from birdcal.text import register_fonts
@@ -43,19 +56,59 @@ class BuildError(Exception):
     """The build cannot proceed. The message says why and where."""
 
 
+@dataclass(frozen=True)
+class PhotoFinding:
+    """Per-photo facts for check-photos and build warnings."""
+
+    page: str  # "cover" or "month"
+    month: int
+    file: str
+    px_w: int
+    px_h: int
+    box_w_mm: float
+    box_h_mm: float
+    ppi: float
+    crop_fraction: float
+    colour_profile: str | None
+    warnings: tuple[str, ...]
+
+
 @dataclass
 class BuildResult:
     path: Path
     mode: Mode
     pages: int
     warnings: list[str] = field(default_factory=list)
+    findings: list[PhotoFinding] = field(default_factory=list)
+    photo_hashes: list[str] = field(default_factory=list)
 
 
-def _bird_view(config: Config, data: YearData, month: int) -> BirdView:
+@dataclass(frozen=True)
+class Inputs:
+    loaded: LoadedConfig
+    data: YearData
+    statuses: Mapping[str, PhotoStatus]
+    locks: Mapping[str, LockRecord]
+    warnings: tuple[str, ...]
+
+    @property
+    def config(self) -> Config:
+        return self.loaded.config
+
+
+def _bird_view(
+    cfg: Config, data: YearData, month: int, statuses: Mapping[str, PhotoStatus]
+) -> BirdView:
     bird = next(b for b in data.birds.birds if b.month == month)
     photo = bird.photo
-    px_w = config.draft.placeholder_px_width
-    px_h = config.draft.placeholder_px_height
+    status = statuses.get(photo.file) if photo else None
+    use_real = status is not None and status.usable and status.record is not None
+    if status is not None and use_real and status.record is not None and status.path is not None:
+        px_w, px_h = status.record.width, status.record.height
+        source: str | None = str(status.path)
+    else:
+        px_w, px_h = cfg.draft.placeholder_px_width, cfg.draft.placeholder_px_height
+        source = None
     return BirdView(
         month=month,
         common_name=bird.common_name,
@@ -65,14 +118,14 @@ def _bird_view(config: Config, data: YearData, month: int) -> BirdView:
         date_taken=bird.date_taken,
         photo_credit=bird.photo_credit,
         photo_file=photo.file if photo else None,
-        fit=photo.fit if photo else config.photo.fit,
+        fit=photo.fit if photo else cfg.photo.fit,
         focal=(photo.focal_point if photo and photo.focal_point else (0.5, 0.5)),
         border_mm=photo.border_mm if photo else None,
         corner_radius_mm=photo.corner_radius_mm if photo else None,
         px_w=px_w,
         px_h=px_h,
-        # Stage 2: no real photo pipeline yet, so every photo is a placeholder.
-        placeholder=True,
+        placeholder=not use_real,
+        source_path=source,
     )
 
 
@@ -98,69 +151,6 @@ def _back_entries(data: YearData) -> list[tuple[dt.date, str, str]]:
     return sorted(entries, key=lambda e: (e[0], e[1]))
 
 
-def _check_inputs(loaded: LoadedConfig, data: YearData, root: Path, mode: Mode) -> list[str]:
-    """Fail on errors; return warnings. Raises BuildError."""
-    issues = validate_year_data(data)
-    errors = [i for i in issues if i.level == "error"]
-    if errors:
-        raise BuildError("data has errors:\n  " + "\n  ".join(str(e) for e in errors))
-    warnings = [f"{i.where}: {i.message}" for i in issues if i.level == "warning"]
-
-    for role, font in loaded.config.fonts.model_dump().items():
-        if not (root / font["file"]).is_file():
-            raise BuildError(f"fonts.{role}: font file not found: {font['file']}")
-
-    placeholders = [b.month for b in data.birds.birds if b.common_name is None or b.photo is None]
-    if placeholders:
-        months = ", ".join(f"{m:02d}" for m in placeholders)
-        if mode == "print":
-            raise BuildError(
-                f"print refused: months {months} have no bird or photo yet, and placeholder "
-                "images are never allowed in print output"
-            )
-        warnings.append(f"placeholder images used for months {months}")
-    if mode == "proof":
-        warnings.append("proof uses placeholder images until the real-photo pipeline (stage 3)")
-    if mode == "print":
-        raise BuildError(
-            "print refused: real photo embedding is not implemented yet (stage 3); "
-            "every photo is currently a placeholder"
-        )
-    return warnings
-
-
-def build_calendar(root: Path, year: int, mode: Mode, out_dir: Path | None = None) -> BuildResult:
-    """Build the calendar PDF for ``year`` in ``mode``. Returns the output path and warnings."""
-    try:
-        loaded = load_config(root, year)
-    except (ConfigError, NotImplementedError) as exc:
-        raise BuildError(str(exc)) from exc
-    cfg = loaded.config
-    calendar_dir = root / "calendars" / str(year)
-    try:
-        data = load_year_data(calendar_dir, year)
-    except ConfigError as exc:
-        raise BuildError(str(exc)) from exc
-
-    warnings = _check_inputs(loaded, data, root, mode)
-    ctx, plans = plan_pages(root, cfg, data)
-
-    geom = ctx.geom
-    guides = mode in GUIDED_MODES
-
-    out_root = out_dir or (root / "build" / str(year))
-    out_root.mkdir(parents=True, exist_ok=True)
-    path = out_root / f"calendar-{year}-{mode}.pdf"
-    renderer = PdfRenderer(
-        path, geom, ctx.registry["credit"], title=f"{year} bird calendar ({mode})"
-    )
-    marks = trim_mark_ops(cfg, geom)
-    for plan in plans:
-        renderer.add_page(plan, marks, guides=guides)
-    renderer.save()
-    return BuildResult(path=path, mode=mode, pages=len(plans), warnings=warnings)
-
-
 def geometry_for(cfg: Config) -> SheetGeometry:
     return SheetGeometry(
         trim_w=cfg.page.width_mm,
@@ -172,19 +162,28 @@ def geometry_for(cfg: Config) -> SheetGeometry:
     )
 
 
-def plan_pages(root: Path, cfg: Config, data: YearData) -> tuple[LayoutContext, list[PagePlan]]:
-    """Lay out every page (cover, twelve months, optional back). Shared by build and tests."""
+def plan_pages(
+    root: Path,
+    cfg: Config,
+    data: YearData,
+    statuses: Mapping[str, PhotoStatus] | None = None,
+) -> tuple[LayoutContext, list[PagePlan]]:
+    """Lay out every page (cover, twelve months, optional back). Shared by build and tests.
+
+    Without ``statuses`` every photo is a placeholder.
+    """
     year = data.year
+    statuses = statuses or {}
     registry = register_fonts(cfg.fonts, root)
     ctx = LayoutContext(config=cfg, geom=geometry_for(cfg), registry=registry, year=year)
     plans: list[PagePlan] = []
     try:
         if cfg.pages.cover:
-            cover = cover_page(ctx, _bird_view(cfg, data, cfg.pages.cover_month))
+            cover = cover_page(ctx, _bird_view(cfg, data, cfg.pages.cover_month, statuses))
             plans.append(_with_features(ctx, cover, "cover"))
         labels = _day_labels(data)
         for grid in year_grids(year, cfg.grid.week_start, cfg.grid.rows):
-            plan = month_page(ctx, grid, _bird_view(cfg, data, grid.month), labels)
+            plan = month_page(ctx, grid, _bird_view(cfg, data, grid.month, statuses), labels)
             plans.append(_with_features(ctx, plan, "months"))
         if cfg.pages.back:
             plans.append(_with_features(ctx, back_page(ctx, _back_entries(data)), "back"))
@@ -202,4 +201,167 @@ def _with_features(ctx: LayoutContext, plan: PagePlan, kind: str) -> PagePlan:
         ops=plan.ops,
         guides=plan.guides + tuple(extra),
         content=plan.content,
+    )
+
+
+def photo_findings(
+    plans: list[PagePlan],
+    cfg: Config,
+    locks: Mapping[str, LockRecord],
+) -> list[PhotoFinding]:
+    """PPI, crop and colour facts for every real photo placed on a page."""
+    findings: list[PhotoFinding] = []
+    for plan in plans:
+        for op in plan.ops:
+            if not isinstance(op, ImageOp) or op.placeholder or op.file is None:
+                continue
+            month = plan.month if plan.month is not None else cfg.pages.cover_month
+            ppi = effective_ppi(op.px_w, op.px_h, op.rect, op.fit)
+            placement = placement_for(op.fit, op.px_w, op.px_h, op.rect, op.focal)
+            crop_x = 1 - op.rect.w / placement.draw.w if placement.draw.w else 0.0
+            crop_y = 1 - op.rect.h / placement.draw.h if placement.draw.h else 0.0
+            crop = max(crop_x, crop_y, 0.0)
+            record = locks.get(op.file)
+            profile = record.colour_profile if record else None
+            warns: list[str] = []
+            if ppi < cfg.photo.ppi.warn_below:
+                warns.append(f"effective {ppi:.0f} ppi is below {cfg.photo.ppi.warn_below:.0f} ppi")
+            if crop > cfg.photo.max_crop_fraction:
+                warns.append(
+                    f"crop removes {crop:.0%} of an axis (limit {cfg.photo.max_crop_fraction:.0%}); "
+                    "check the focal point keeps the bird in frame"
+                )
+            if profile != cfg.colour.profile:
+                shown = profile or "untagged"
+                warns.append(f"colour profile is {shown!r}, expected {cfg.colour.profile!r}")
+            findings.append(
+                PhotoFinding(
+                    page=plan.kind,
+                    month=month,
+                    file=op.file,
+                    px_w=op.px_w,
+                    px_h=op.px_h,
+                    box_w_mm=op.rect.w,
+                    box_h_mm=op.rect.h,
+                    ppi=ppi,
+                    crop_fraction=crop,
+                    colour_profile=profile,
+                    warnings=tuple(warns),
+                )
+            )
+    return sorted(findings, key=lambda f: f.month)
+
+
+def _bird_usable(bird: object, statuses: Mapping[str, PhotoStatus]) -> bool:
+    """A month is usable when it has a bird name and a verified photo."""
+    from birdcal.data import BirdEntry
+
+    assert isinstance(bird, BirdEntry)
+    if bird.photo is None or bird.common_name is None:
+        return False
+    status = statuses.get(bird.photo.file)
+    return status is not None and status.usable
+
+
+def prepare(root: Path, year: int, mode: Mode) -> tuple[Inputs, dict[str, PhotoStatus]]:
+    """Load everything, verify photos against the lock, and apply the per-mode rules."""
+    try:
+        loaded = load_config(root, year)
+    except (ConfigError, NotImplementedError) as exc:
+        raise BuildError(str(exc)) from exc
+    cfg = loaded.config
+    calendar_dir = root / "calendars" / str(year)
+    try:
+        data = load_year_data(calendar_dir, year)
+    except ConfigError as exc:
+        raise BuildError(str(exc)) from exc
+
+    issues = validate_year_data(data)
+    errors = [i for i in issues if i.level == "error"]
+    if errors:
+        raise BuildError("data has errors:\n  " + "\n  ".join(str(e) for e in errors))
+    warnings = [f"{i.where}: {i.message}" for i in issues if i.level == "warning"]
+
+    for role, font in cfg.fonts.model_dump().items():
+        if not (root / font["file"]).is_file():
+            raise BuildError(f"fonts.{role}: font file not found: {font['file']}")
+
+    photos_dir = Path(cfg.paths.photos_dir).expanduser() if cfg.paths.photos_dir else None
+    locks = read_lock(calendar_dir / LOCK_FILENAME)
+    referenced = [b.photo.file for b in data.birds.birds if b.photo is not None]
+    try:
+        statuses = check_against_lock(photos_dir, referenced, locks)
+    except PhotoError as exc:
+        raise BuildError(f"photo check failed: {exc}") from exc
+
+    unusable = sorted(b.month for b in data.birds.birds if not _bird_usable(b, statuses))
+    if unusable:
+        months = ", ".join(f"{m:02d}" for m in unusable)
+        reasons = sorted({s.problem for s in statuses.values() if s.problem})
+        detail = f" ({'; '.join(reasons)})" if reasons else ""
+        if mode == "print":
+            raise BuildError(
+                f"print refused: months {months} have no verified photo or bird name{detail}"
+            )
+        warnings.append(f"placeholder images used for months {months}{detail}")
+
+    inputs = Inputs(
+        loaded=loaded,
+        data=data,
+        statuses=statuses,
+        locks=locks,
+        warnings=tuple(warnings),
+    )
+    return inputs, statuses
+
+
+def build_calendar(root: Path, year: int, mode: Mode, out_dir: Path | None = None) -> BuildResult:
+    """Build the calendar PDF for ``year`` in ``mode``."""
+    inputs, statuses = prepare(root, year, mode)
+    cfg = inputs.config
+    ctx, plans = plan_pages(root, cfg, inputs.data, statuses)
+    findings = photo_findings(plans, cfg, inputs.locks)
+    warnings = list(inputs.warnings)
+    for f in findings:
+        warnings += [f"month {f.month:02d} {f.file}: {w}" for w in f.warnings]
+
+    used_hashes = [
+        inputs.locks[op.file].sha256
+        for plan in plans
+        for op in plan.ops
+        if isinstance(op, ImageOp)
+        and not op.placeholder
+        and op.file is not None
+        and op.file in inputs.locks
+    ]
+    guides = mode in GUIDED_MODES
+    out_root = out_dir or (root / "build" / str(year))
+    out_root.mkdir(parents=True, exist_ok=True)
+    path = out_root / f"calendar-{year}-{mode}.pdf"
+    renderer = PdfRenderer(
+        path, ctx.geom, ctx.registry["credit"], title=f"{year} bird calendar ({mode})"
+    )
+    marks = trim_mark_ops(cfg, ctx.geom)
+    for plan in plans:
+        renderer.add_page(plan, marks, guides=guides)
+    renderer.save()
+
+    try:
+        embedded = embedded_jpeg_hashes(path)
+    except PhotoError as exc:
+        path.unlink(missing_ok=True)
+        raise BuildError(f"lossless check failed: {exc}") from exc
+    if embedded != Counter(used_hashes):
+        path.unlink(missing_ok=True)
+        raise BuildError(
+            "lossless check failed: the PDF's embedded JPEG streams do not match the source "
+            "photos byte for byte; the output was removed"
+        )
+    return BuildResult(
+        path=path,
+        mode=mode,
+        pages=len(plans),
+        warnings=warnings,
+        findings=findings,
+        photo_hashes=sorted(used_hashes),
     )

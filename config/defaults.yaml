@@ -84,6 +84,7 @@ photo:
   ppi:
     warn_below: 200  # effective PPI below this is a warning
     good_at: 300  # effective PPI at or above this is "good"
+  max_crop_fraction: 0.15  # warn when a fill crop removes more than this share of an axis
 
 grid:
   week_start: monday  # monday | sunday (Australian default: monday)

@@ -159,6 +159,9 @@ class PhotoDefaults(_Model):
     border_colour: str
     corner_radius_mm: float = Field(ge=0)
     ppi: PpiPolicy
+    max_crop_fraction: float = Field(
+        ge=0, lt=1, description="warn when fill crops more than this share of either axis"
+    )
 
 
 class Grid(_Model):

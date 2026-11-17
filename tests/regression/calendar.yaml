@@ -1,0 +1,9 @@
+# Regression fixture: a small, fixed calendar. Its draft PDF hash is stored in expected.sha256.
+year: 2027
+pages:
+  cover: false
+  back: true
+grid:
+  week_start: sunday
+  week_numbers: true
+  rows: 6

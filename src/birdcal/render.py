@@ -14,8 +14,14 @@ from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
 
+from reportlab import rl_config
 from reportlab.lib.colors import HexColor
 from reportlab.pdfgen.canvas import Canvas
+
+# reportlab wraps embedded JPEG data in ASCII85 by default. That is a transport encoding, but
+# it makes the stream differ from the source file. Turning it off embeds the JPEG bytes
+# exactly (DCTDecode only), which is what the lossless check relies on. Set once, globally.
+rl_config.useA85 = 0
 
 from birdcal.geometry import PT_PER_MM, Rect, SheetGeometry, placement_for
 from birdcal.layout import (
@@ -173,8 +179,10 @@ class PdfRenderer:
             path = c.beginPath()
             path.rect(x, y, w, h)
             c.clipPath(path, stroke=0, fill=0)
-        if op.placeholder:
+        if op.placeholder or op.source_path is None:
             self._placeholder(op)
+        else:
+            self._photo(op)
         c.restoreState()
         if op.border_mm > 0:
             c.saveState()
@@ -183,6 +191,21 @@ class PdfRenderer:
             inset = op.border_mm / 2
             c.rect(*self._rect_path(op.rect.inset(inset)), stroke=1, fill=0)
             c.restoreState()
+
+    def _photo(self, op: ImageOp) -> None:
+        """Draw the real JPEG at the placed size. Scaling is a PDF matrix, not resampling."""
+        assert op.source_path is not None
+        placement = placement_for(op.fit, op.px_w, op.px_h, op.rect, op.focal)
+        draw = placement.draw
+        x, y = self.conv.x(draw.x), self.conv.y(draw.bottom)
+        self.canvas.drawImage(
+            op.source_path,
+            x,
+            y,
+            width=self.conv.len(draw.w),
+            height=self.conv.len(draw.h),
+            mask=None,
+        )
 
     def _placeholder(self, op: ImageOp) -> None:
         """Vector gradient with the filename and pixel size: stands in for a real photo."""

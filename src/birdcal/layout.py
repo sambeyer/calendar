@@ -87,6 +87,7 @@ class ImageOp:
     radius_mm: float
     placeholder: bool
     label: str
+    source_path: str | None = None
 
 
 Op = FillRect | StrokeRect | Line | Circle | TextOp | ImageOp
@@ -123,6 +124,7 @@ class BirdView:
     px_w: int
     px_h: int
     placeholder: bool
+    source_path: str | None = None
 
     @property
     def is_empty(self) -> bool:
@@ -295,6 +297,7 @@ def _photo_op(ctx: LayoutContext, rect: Rect, bird: BirdView) -> ImageOp:
         radius_mm=radius,
         placeholder=bird.placeholder,
         label=label,
+        source_path=bird.source_path,
     )
 
 

@@ -1,0 +1,14 @@
+year: 2027
+birds:
+  - {month: 1, common_name: Superb Fairywren, scientific_name: Malurus cyaneus, description: A small blue bird., location: Royal Park, date_taken: 2027-01-14, photo_credit: Test}
+  - {month: 2, common_name: Rainbow Lorikeet, scientific_name: Trichoglossus moluccanus, description: Noisy and colourful., location: Yarra, photo_credit: Test}
+  - {month: 3, common_name: Eastern Rosella, scientific_name: Platycercus eximius}
+  - {month: 4, common_name: Laughing Kookaburra, scientific_name: Dacelo novaeguineae, description: Calls at dawn., location: Dandenongs}
+  - {month: 5, common_name: Australian Magpie}
+  - {month: 6, common_name: Sulphur-crested Cockatoo, description: Tests a long description that has to wrap across more than one line in the caption block.}
+  - {month: 7, common_name: Galah}
+  - {month: 8, common_name: Crimson Rosella}
+  - {month: 9, common_name: Tawny Frogmouth}
+  - {month: 10, common_name: Wedge-tailed Eagle}
+  - {month: 11, common_name: Willie Wagtail}
+  - {month: 12, common_name: Pacific Black Duck}
