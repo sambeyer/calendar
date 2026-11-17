@@ -65,7 +65,7 @@ colour:
 layout:
   mode: photo_over_grid  # facing_pages is declared for later; not implemented in v1
   caption:
-    placement: beside_grid  # beside_grid | below_grid
+    placement: below_grid  # below_grid | beside_grid
   spacing:
     title_height_mm: 14
     header_height_mm: 6

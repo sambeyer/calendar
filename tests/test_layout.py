@@ -186,7 +186,7 @@ def test_oversized_description_names_month_and_field(make_repo: MakeRepo) -> Non
 
 
 def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
-    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 26
+    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 10
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(

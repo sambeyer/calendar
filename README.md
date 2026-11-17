@@ -107,7 +107,8 @@ PDF dates (default: 2000-01-01).
   - **Photo pages** are full bleed: the photo covers the whole page, bleed included. Holes are
     punched through the photo.
   - **Grid pages** have the binding strip (`binding.keep_clear_mm`) at the top, with the month
-    grid and the caption (beside the grid by default, or below it) under the strip.
+    grid under the strip, with the caption (bird name, description, credit) at the bottom of the
+    page and the grid spanning the full width (`layout.caption.placement`).
 - **Order:** the cover, then the cover's back (January's photo), then January's grid. Each grid
   page's back is the next month's photo, so February's photo is the back of January's grid.
   December's grid is followed by January's photo again, since the calendar repeats each year.
