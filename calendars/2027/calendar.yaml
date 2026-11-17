@@ -1,0 +1,3 @@
+# Per-year overrides for 2027. Everything not set here comes from config/defaults.yaml.
+# Machine-specific paths (photos_dir) belong in local.yaml, not here.
+year: 2027

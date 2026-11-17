@@ -1,0 +1,100 @@
+# Bird per month. Fill each slot; empty slots are allowed (warnings only).
+# photo.file is the photo's filename inside paths.photos_dir (see photos.lock, stage 3).
+year: 2027
+birds:
+  - month: 1
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 2
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 3
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 4
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 5
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 6
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 7
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 8
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 9
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 10
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 11
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null
+  - month: 12
+    common_name: null
+    scientific_name: null
+    description: null
+    location: null
+    date_taken: null
+    photo_credit: null
+    photo: null

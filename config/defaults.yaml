@@ -1,0 +1,120 @@
+# Repo-wide defaults. Layered beneath calendars/<year>/calendar.yaml and local.yaml.
+#
+# Units: millimetres everywhere unless the key says otherwise (_pt = PostScript points).
+#
+# PRINTER PLACEHOLDERS: every value marked `# TODO(printer)` is a placeholder until the
+# printer confirms the spec. Each build lists these values and the layer they came from.
+# Put a TODO on a LEAF key only (one key per line), so the report names the exact key.
+# Values that are design choices rather than printer requirements carry no marker.
+
+# Set to true only once every TODO(printer) value below has been confirmed with the
+# printer and written down in the README checklist. The `release` command refuses to run
+# while this is false. Draft and proof builds are unaffected.
+printer_spec_confirmed: false  # TODO(printer)
+
+paths:
+  # Machine-specific: set in local.yaml (git-ignored), e.g. photos_dir: /Volumes/Photos/birds
+  photos_dir: null
+
+page:
+  width_mm: 297  # TODO(printer)  A3 placeholder
+  height_mm: 420  # TODO(printer)  A3 placeholder
+  orientation: portrait  # TODO(printer)
+
+bleed_mm: 3  # TODO(printer)
+safe_margin_mm: 10  # TODO(printer)
+
+trim_marks:
+  enabled: true  # TODO(printer)
+  offset_mm: 3  # TODO(printer)
+  length_mm: 5  # TODO(printer)
+  line_width_pt: 0.25  # TODO(printer)
+
+binding:
+  type: spiral  # TODO(printer)
+  edge: top  # TODO(printer)
+  keep_clear_mm: 25  # TODO(printer)
+  holes:
+    diameter_mm: 4.8  # TODO(printer)
+    pattern:
+      pitch_mm: 8.47  # TODO(printer)  3:1 spiral, i.e. 3 holes per inch
+      holes_per_inch: null
+      count: null
+    edge_offset_mm: 6  # TODO(printer)
+    end_margin_mm: 10  # TODO(printer)
+    centre: true  # TODO(printer)
+
+hanger:
+  enabled: true  # TODO(printer)
+  shape: hole  # TODO(printer)
+  diameter_mm: 6  # TODO(printer)
+  x_mm: 148.5  # TODO(printer)
+  offset_mm: 8  # TODO(printer)
+  pages: [cover]  # TODO(printer)
+
+sides:
+  mode: single  # TODO(printer)
+  duplex_flip: long_edge  # TODO(printer)
+  back_content: blank  # TODO(printer)
+
+colour:
+  mode: rgb  # TODO(printer)
+  profile: sRGB IEC61966-2.1  # TODO(printer)
+
+# Design choices (not printer requirements, so no TODO marker).
+layout:
+  mode: photo_over_grid  # facing_pages is declared for later; not implemented in v1
+  photo_height_mm: 170
+  caption:
+    placement: below_grid  # below_grid | beside_grid
+
+photo:
+  fit: fill  # fill (uses focal point) | fit (whole photo, letterboxed)
+  border_mm: 0
+  border_colour: "#FFFFFF"
+  corner_radius_mm: 0
+  ppi:
+    warn_below: 200  # effective PPI below this is a warning
+    good_at: 300  # effective PPI at or above this is "good"
+
+grid:
+  week_start: monday  # monday | sunday (Australian default: monday)
+  week_numbers: false  # ISO-8601 week number of the Monday in each row
+  show_adjacent_days: true  # greyed days from the previous / next month
+  adjacent_day_colour: "#9E9E9E"
+  weekend_shading: true
+  weekend_colour: "#F2F2F2"
+  day_name_format: short  # short (Mon) | initial (M) | full (Monday)
+  rows: auto  # auto (5 or 6 as needed) | 6 (always six rows)
+  notes_in_cells: true
+  line_width_pt: 0.5
+  line_colour: "#555555"
+  cell_padding_mm: 1.5
+
+# Fonts are PROVISIONAL until approved (see README). Each role names a font file under fonts/.
+fonts:
+  month_title: {file: fonts/Inter-SemiBold.ttf, size_pt: 36, min_size_pt: 24, colour: "#111111", align: left}
+  day_numbers: {file: fonts/Inter-Regular.ttf, size_pt: 14, min_size_pt: 9, colour: "#111111", align: right}
+  day_names: {file: fonts/Inter-Medium.ttf, size_pt: 10, min_size_pt: 7, colour: "#333333", align: centre}
+  bird_name: {file: fonts/Inter-SemiBold.ttf, size_pt: 20, min_size_pt: 14, colour: "#111111", align: left}
+  scientific_name: {file: fonts/Inter-Regular.ttf, size_pt: 11, min_size_pt: 8, colour: "#444444", align: left}
+  description: {file: fonts/Inter-Regular.ttf, size_pt: 10, min_size_pt: 7, colour: "#222222", align: left}
+  holiday_label: {file: fonts/Inter-Medium.ttf, size_pt: 6.5, min_size_pt: 5, colour: "#B00020", align: left}
+  event_label: {file: fonts/Inter-Medium.ttf, size_pt: 6.5, min_size_pt: 5, colour: "#1A4F8B", align: left}
+  credit: {file: fonts/Inter-Regular.ttf, size_pt: 7, min_size_pt: 6, colour: "#555555", align: right}
+
+labels:
+  holiday: {prefix: "", suffix: ""}
+  event: {prefix: "• ", suffix: ""}
+
+pages:
+  cover: true
+  back: false
+
+locale:
+  language: en-AU
+  holiday_region: AU-VIC
+
+# Optional features, off by default. Enabling one raises NotImplementedError in v1.
+school_terms:
+  enabled: false

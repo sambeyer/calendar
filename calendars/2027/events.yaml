@@ -1,0 +1,8 @@
+# Personal dates for 2027. Each entry needs a label and EITHER:
+#   date: 2027-05-14          (one-off)
+#   month: 5 and day: 14      (recurring, resolved to this year's date)
+# Example (uncomment to use):
+# events:
+#   - {label: "Mum's birthday", month: 5, day: 14}
+year: 2027
+events: []

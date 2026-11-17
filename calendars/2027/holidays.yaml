@@ -1,0 +1,36 @@
+# AU-VIC public holidays, 2027.
+#
+# STATUS: PROPOSED, NOT VERIFIED.
+# This list was generated from the `holidays` Python library (tools/propose_holidays.py),
+# not from an official source. The official page could not be read in this build:
+#   - https://www.vic.gov.au/public-holidays returned 404
+#   - https://business.vic.gov.au/business-information/public-holidays/victorian-public-holidays-2027
+#     was blocked by the sandbox classifier (the page was not read)
+# Items to check against the official list before setting status to 'verified':
+#   - AFL Grand Final Friday: the date is set once the AFL fixture is confirmed
+#   - Anzac Day falls on a Sunday in 2027; confirm whether a Monday substitute applies
+#   - Easter Saturday and Easter Sunday: confirm they are Victorian public holidays
+#   - Christmas / Boxing Day observed dates (27 and 28 Dec)
+# To verify: set status: verified, fill in source (the URL read) and checked_on (the date read).
+# `release` refuses to run until this file is verified.
+year: 2027
+region: AU-VIC
+status: proposed
+source: null
+checked_on: null
+holidays:
+  - {date: 2027-01-01, name: New Year's Day, weekday: Friday}
+  - {date: 2027-01-26, name: Australia Day, weekday: Tuesday}
+  - {date: 2027-03-08, name: Labour Day, weekday: Monday}
+  - {date: 2027-03-26, name: Good Friday, weekday: Friday}
+  - {date: 2027-03-27, name: Easter Saturday, weekday: Saturday}
+  - {date: 2027-03-28, name: Easter Sunday, weekday: Sunday}
+  - {date: 2027-03-29, name: Easter Monday, weekday: Monday}
+  - {date: 2027-04-25, name: ANZAC Day, weekday: Sunday}
+  - {date: 2027-06-14, name: King's Birthday, weekday: Monday}
+  - {date: 2027-09-24, name: AFL Grand Final Friday (provisional), weekday: Friday}
+  - {date: 2027-11-02, name: Melbourne Cup Day, weekday: Tuesday}
+  - {date: 2027-12-25, name: Christmas Day, weekday: Saturday}
+  - {date: 2027-12-26, name: Boxing Day, weekday: Sunday}
+  - {date: 2027-12-27, name: Christmas Day (observed), weekday: Monday}
+  - {date: 2027-12-28, name: Boxing Day (observed), weekday: Tuesday}

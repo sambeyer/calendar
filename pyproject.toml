@@ -1,0 +1,40 @@
+[project]
+name = "birdcal"
+version = "0.1.0"
+description = "Reusable, reproducible print-ready bird photo wall calendar builder"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7,<3",
+    "pyyaml>=6.0,<7",
+]
+
+[project.scripts]
+birdcal = "birdcal.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "mypy>=1.10",
+    "ruff>=0.5",
+    "holidays>=0.50",
+    "types-pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/birdcal"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+strict = true
+files = ["src/birdcal", "tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
