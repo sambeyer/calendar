@@ -157,38 +157,21 @@ def keep_clear_rect(config: Config, geom: SheetGeometry) -> Rect | None:
         return Rect(0, 0, geom.trim_w, keep)
     if config.binding.edge == "bottom":
         return Rect(0, geom.trim_h - keep, geom.trim_w, keep)
-    if config.binding.edge == "middle":
-        return Rect(0, geom.trim_h / 2 - keep / 2, geom.trim_w, keep)
     return None
 
 
-def regions(config: Config, geom: SheetGeometry) -> tuple[Rect, Rect]:
-    """Split the sheet into (photo region, calendar region).
+def grid_region(config: Config, geom: SheetGeometry) -> Rect:
+    """Where a grid page's content goes: inside the safe margin, below the binding strip."""
+    return content_rect(config, geom)
 
-    Middle binding: the spine runs across the middle of the sheet. The photo sits above the
-    keep-clear band, with the hanger hole above it, and the calendar sits below the band.
-    Top or bottom binding: the photo sits at the top of the content area with a fixed height.
-    """
-    sp = config.layout.spacing
-    safe = config.safe_margin_mm
-    if config.binding.edge == "middle":
-        keep = config.binding.keep_clear_mm
-        band_top = geom.trim_h / 2 - keep / 2
-        band_bottom = geom.trim_h / 2 + keep / 2
-        width = geom.trim_w - 2 * safe
-        photo = Rect(safe, safe, width, band_top - sp.gap_mm - safe)
-        cal_top = band_bottom + sp.gap_mm
-        cal = Rect(safe, cal_top, width, geom.trim_h - safe - cal_top)
-        return photo, cal
-    content = content_rect(config, geom)
-    photo = Rect(content.x, content.y, content.w, config.layout.photo_height_mm)
-    cal_top = photo.bottom + sp.gap_mm
-    cal = Rect(content.x, cal_top, content.w, content.bottom - cal_top)
-    return photo, cal
+
+def photo_region(geom: SheetGeometry) -> Rect:
+    """Photo pages are full bleed: the whole page, including the bleed."""
+    return geom.bleed_rect
 
 
 def hole_centres(config: Config, geom: SheetGeometry) -> list[tuple[float, float]]:
-    """Binding hole centres in trim mm: along the top, bottom or middle of the sheet."""
+    """Binding hole centres in trim mm, along the top or bottom long edge."""
     holes = config.binding.holes
     if holes is None or config.binding.type not in ("spiral", "wire_o"):
         return []
@@ -211,9 +194,7 @@ def hole_centres(config: Config, geom: SheetGeometry) -> list[tuple[float, float
         total = (n - 1) * pitch
         start = (length - total) / 2 if holes.centre else end
         positions = [start + i * pitch for i in range(n)]
-    if config.binding.edge == "middle":
-        y = geom.trim_h / 2  # spine across the middle; edge_offset_mm does not apply
-    elif config.binding.edge == "top":
+    if config.binding.edge == "top":
         y = holes.edge_offset_mm
     else:
         y = geom.trim_h - holes.edge_offset_mm
@@ -247,6 +228,26 @@ def _hanger_ops(config: Config, kind: str) -> list[Op]:
         return []
     cx, cy = hanger_centre(config)
     return [Circle(cx, cy, hanger.diameter_mm / 2, "#D00000", 0.5)]
+
+
+def check_hanger(config: Config, geom: SheetGeometry) -> None:
+    """The hanger hole must sit on the trim and clear of every binding hole."""
+    hanger = config.hanger
+    if not hanger.enabled:
+        return
+    r = hanger.diameter_mm / 2
+    hole = Rect(hanger.x_mm - r, hanger.offset_mm - r, 2 * r, 2 * r)
+    if not geom.trim_rect.contains(hole):
+        raise LayoutError("hanger hole is not fully on the trim; check hanger.x_mm and offset_mm")
+    holes = config.binding.holes
+    if holes is None:
+        return
+    hr = holes.diameter_mm / 2
+    for x, y in hole_centres(config, geom):
+        if hole.overlaps(Rect(x - hr, y - hr, 2 * hr, 2 * hr)):
+            raise LayoutError(
+                "hanger hole overlaps a binding hole; move hanger.x_mm or hanger.offset_mm"
+            )
 
 
 def _hanger_clear_check(config: Config, geom: SheetGeometry, content: Rect, kind: str) -> None:
@@ -588,9 +589,6 @@ def _grid_ops(
     return ops
 
 
-MIN_PHOTO_MM = 30.0
-
-
 def month_page(
     ctx: LayoutContext,
     month: MonthGrid,
@@ -601,12 +599,7 @@ def month_page(
     sp = cfg.layout.spacing
     where = f"month {month.month:02d}"
     content = content_rect(cfg, ctx.geom)
-    photo_rect, cal = regions(cfg, ctx.geom)
-    if photo_rect.h < MIN_PHOTO_MM:
-        raise LayoutError(
-            f"{where}: no room for the photo: {photo_rect.h:.1f} mm available, "
-            f"{MIN_PHOTO_MM:.0f} mm needed. Reduce the binding keep-clear depth."
-        )
+    cal = grid_region(cfg, ctx.geom)
     min_grid = sp.header_height_mm + 6 * 9.0
     caption_below = cfg.layout.caption.placement == "below_grid"
     needed = (
@@ -622,7 +615,7 @@ def month_page(
         )
     _hanger_clear_check(cfg, ctx.geom, content, "months")
 
-    ops: list[Op] = [_photo_op(ctx, photo_rect, bird)]
+    ops: list[Op] = []
 
     title_rect = Rect(cal.x, cal.y, cal.w, sp.title_height_mm)
     title_op = _text_op(
@@ -655,44 +648,27 @@ def month_page(
     )
 
 
-def next_month_page(
-    ctx: LayoutContext, bird: BirdView, next_year: int, next_month: int
+def photo_page(
+    ctx: LayoutContext,
+    bird: BirdView,
+    kind: Literal["cover", "next_photo"],
+    month: int | None,
 ) -> PagePlan:
-    """The back of a month sheet: the next month's photo, with its bird caption below."""
-    cfg = ctx.config
-    sp = cfg.layout.spacing
-    where = f"back of sheet for {next_month:02d}"
-    content = content_rect(cfg, ctx.geom)
-    photo_rect, cal = regions(cfg, ctx.geom)
-    if photo_rect.h < MIN_PHOTO_MM:
-        raise LayoutError(
-            f"{where}: no room for the photo: {photo_rect.h:.1f} mm available, "
-            f"{MIN_PHOTO_MM:.0f} mm needed. Reduce the binding keep-clear depth."
-        )
-    ops: list[Op] = [_photo_op(ctx, photo_rect, bird)]
-    heading_rect = Rect(cal.x, cal.y, cal.w, sp.title_height_mm)
-    heading = _text_op(
-        heading_rect,
-        f"Next month: {month_title(next_year, next_month)}",
-        cfg.fonts.month_title,
-        ctx.registry,
-        "month_title",
-        where=f"{where} heading",
-    )
-    if heading:
-        ops.append(heading)
-    caption_rect = Rect(
-        cal.x,
-        heading_rect.bottom + sp.gap_mm,
-        cal.w,
-        cal.bottom - heading_rect.bottom - sp.gap_mm,
-    )
-    ops.extend(_caption_ops(ctx, caption_rect, bird, where))
-    _hanger_clear_check(cfg, ctx.geom, content, "months")
-    guides = _month_guides(ctx, content)
-    return PagePlan(
-        kind="next_photo", month=next_month, ops=tuple(ops), guides=tuple(guides), content=content
-    )
+    """A full-page photo with nothing else on it."""
+    rect = photo_region(ctx.geom)
+    ops: list[Op] = [_photo_op(ctx, rect, bird)]
+    # Holes are punched through the photo, so no binding band is drawn over it.
+    guides: list[Op] = [
+        StrokeRect(ctx.geom.bleed_rect, "#1F6FD6", 0.25, (3.0, 2.0)),
+        StrokeRect(ctx.geom.trim_rect, "#E0301E", 0.25),
+        *_hole_guides(ctx),
+    ]
+    return PagePlan(kind=kind, month=month, ops=tuple(ops), guides=tuple(guides), content=rect)
+
+
+def next_month_page(ctx: LayoutContext, bird: BirdView, next_month: int) -> PagePlan:
+    """The back of a month's grid sheet: the next month's photo, full page."""
+    return photo_page(ctx, bird, "next_photo", next_month)
 
 
 def blank_page(ctx: LayoutContext) -> PagePlan:
@@ -704,26 +680,7 @@ def blank_page(ctx: LayoutContext) -> PagePlan:
 
 
 def cover_page(ctx: LayoutContext, bird: BirdView) -> PagePlan:
-    cfg = ctx.config
-    sp = cfg.layout.spacing
-    content = content_rect(cfg, ctx.geom)
-    _hanger_clear_check(cfg, ctx.geom, content, "cover")
-    photo_rect, cal = regions(cfg, ctx.geom)
-    ops: list[Op] = [_photo_op(ctx, photo_rect, bird)]
-    title_rect = Rect(cal.x, cal.y, cal.w, sp.title_height_mm)
-    title = _text_op(
-        title_rect,
-        str(ctx.year),
-        cfg.fonts.month_title,
-        ctx.registry,
-        "month_title",
-        where="cover title",
-        align="left",
-    )
-    if title:
-        ops.append(title)
-    guides = _common_guides(ctx) + [StrokeRect(content, "#7A3DB8", 0.25, (2.0, 2.0))]
-    return PagePlan(kind="cover", month=None, ops=tuple(ops), guides=tuple(guides), content=content)
+    return photo_page(ctx, bird, "cover", None)
 
 
 def back_page(ctx: LayoutContext, entries: Sequence[tuple[dt.date, str, str]]) -> PagePlan:
@@ -732,7 +689,7 @@ def back_page(ctx: LayoutContext, entries: Sequence[tuple[dt.date, str, str]]) -
     sp = cfg.layout.spacing
     content = content_rect(cfg, ctx.geom)
     _hanger_clear_check(cfg, ctx.geom, content, "back")
-    region, _ = regions(cfg, ctx.geom)
+    region = grid_region(cfg, ctx.geom)
     heading_rect = Rect(region.x, region.y, region.w, sp.title_height_mm)
     ops: list[Op] = []
     heading = _text_op(
@@ -778,11 +735,18 @@ def _common_guides(ctx: LayoutContext) -> list[Op]:
     guides.append(StrokeRect(geom.bleed_rect, "#1F6FD6", 0.25, (3.0, 2.0)))
     guides.append(StrokeRect(safe, "#2E9E4F", 0.25, (3.0, 2.0)))
     guides.append(StrokeRect(geom.trim_rect, "#E0301E", 0.25))
-    holes = cfg.binding.holes
-    if holes is not None:
-        for x, y in hole_centres(cfg, geom):
-            guides.append(Circle(x, y, holes.diameter_mm / 2, "#E0301E", 0.4))
+    guides += _hole_guides(ctx)
     return guides
+
+
+def _hole_guides(ctx: LayoutContext) -> list[Op]:
+    holes = ctx.config.binding.holes
+    if holes is None:
+        return []
+    return [
+        Circle(x, y, holes.diameter_mm / 2, "#E0301E", 0.4)
+        for x, y in hole_centres(ctx.config, ctx.geom)
+    ]
 
 
 def binding_and_hanger_ops(ctx: LayoutContext, kind: str) -> list[Op]:

@@ -49,10 +49,10 @@ def test_print_build_uses_real_photos_and_embeds_source_bytes(
     root, photos = photo_repo
     result = build_calendar(root, 2027, "print", out_dir=tmp_path)
     assert result.pages == 26
-    # Every photo is embedded twice: on its month's front and on the back of the previous
-    # sheet. January is embedded twice more, on the cover front and the cover back.
+    # Photos are full-page and sit on the backs: each month's photo is on the back of the
+    # previous sheet. January also shows on the cover front and the cover back, and on the
+    # back of December's sheet (the next January), so it is embedded three times in total.
     expected = Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
-    expected += Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
     expected[sha256_file(photos / "IMG_01.jpg")] += 2
     assert embedded_jpeg_hashes(result.path) == expected
 
@@ -67,10 +67,9 @@ def test_pdfimages_extracts_identical_jpeg_bytes(
     out.mkdir()
     subprocess.run(["pdfimages", "-all", str(result.path), str(out / "img")], check=True)
     extracted = sorted(out.glob("img-*.jpg"))
-    assert len(extracted) == 26  # fronts, backs, and January on the cover front and back
+    assert len(extracted) == 14  # 14 full-page photos: the cover, and every back sheet
     got = Counter(hashlib.sha256(p.read_bytes()).hexdigest() for p in extracted)
     expected = Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
-    expected += Counter(sha256_file(photos / f"IMG_{m:02d}.jpg") for m in MONTHS)
     expected[sha256_file(photos / "IMG_01.jpg")] += 2
     assert got == expected
 
@@ -160,11 +159,11 @@ def test_low_resolution_and_untagged_photos_are_warned(make_repo: MakeRepo, tmp_
     assert main(["--root", str(root), "lock-photos", "2027"]) == 0
     inputs, statuses = prepare(root, 2027, "proof")
     _, plans = plan_pages(root, inputs.config, inputs.data, statuses)
-    (finding,) = [
+    finding = next(
         f
         for f in photo_findings(plans, inputs.config, inputs.locks)
-        if f.month == 1 and f.page == "month"
-    ]
+        if f.month == 1 and f.page == "next_photo"
+    )
     assert finding.ppi < 200
     text = " | ".join(finding.warnings)
     assert "below 200 ppi" in text
@@ -185,11 +184,11 @@ def test_extreme_crop_is_warned(make_repo: MakeRepo, tmp_path: Path) -> None:
     assert main(["--root", str(root), "lock-photos", "2027"]) == 0
     inputs, statuses = prepare(root, 2027, "proof")
     _, plans = plan_pages(root, inputs.config, inputs.data, statuses)
-    (finding,) = [
+    finding = next(
         f
         for f in photo_findings(plans, inputs.config, inputs.locks)
-        if f.month == 1 and f.page == "month"
-    ]
+        if f.month == 1 and f.page == "next_photo"
+    )
     assert finding.crop_fraction > 0.15
     assert any("crop removes" in w for w in finding.warnings)
 

@@ -64,7 +64,9 @@ def _assert_page_invariants(ctx: LayoutContext, plan: PagePlan) -> None:
         rect = _op_rect(op)
         if rect is not None:
             assert content.contains(rect), f"{label}: {op} is outside the content area"
-            if keep is not None:
+            # Photo pages are full bleed: holes are punched through the photo, so the binding
+            # band does not apply to them.
+            if keep is not None and plan.kind not in ("cover", "next_photo"):
                 assert not rect.overlaps(keep), f"{label}: {op} enters the binding keep-clear zone"
         if isinstance(op, Line):
             assert content.x - 1e-6 <= min(op.x1, op.x2)
@@ -104,7 +106,7 @@ def test_every_page_respects_safe_area_keep_clear_and_text_fit(
 
     root = make_repo(calendar_yaml="year: 2027\n" + yaml.safe_dump(overrides), copy_fonts=True)
     ctx, plans = _plans(root)
-    assert len(plans) == 26  # cover + blank back, 12 x (month + back), back page + blank
+    assert len(plans) == 26
     for plan in plans:
         _assert_page_invariants(ctx, plan)
 
@@ -124,7 +126,7 @@ def test_other_years_lay_out_cleanly(make_repo: MakeRepo, year: int) -> None:
         f"year: {year}\nregion: AU-VIC\nstatus: proposed\nholidays: []\n", encoding="utf-8"
     )
     ctx, plans = _plans(root, year)
-    assert len(plans) == 26  # cover + blank back, 12 x (month + back), back page + blank
+    assert len(plans) == 26
     for plan in plans:
         _assert_page_invariants(ctx, plan)
 
@@ -137,11 +139,11 @@ def test_hole_pattern_is_inside_edge_and_clear_of_content(repo_root: Path) -> No
     centres = hole_centres(cfg, geom)
     assert len(centres) >= 2
     radius = cfg.binding.holes.diameter_mm / 2  # type: ignore[union-attr]
-    band = cfg.binding.keep_clear_mm
     for x, y in centres:
         assert 0 < x < geom.trim_w
-        # Middle spine: holes run along the sheet's centre line, inside the band.
-        assert abs(y - geom.trim_h / 2) + radius <= band / 2
+        # Top binding: holes sit at the edge offset, inside the binding strip.
+        assert y == cfg.binding.holes.edge_offset_mm  # type: ignore[union-attr]
+        assert y + radius <= cfg.binding.keep_clear_mm
     # 3:1 spiral: pitch is 25.4 / 3 mm; check the spacing of the first two holes.
     spacing = centres[1][0] - centres[0][0]
     assert abs(spacing - 8.47) < 1e-6
@@ -205,15 +207,17 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
         _assert_page_invariants(ctx, plan)
 
 
-def test_no_room_for_photo_names_the_month(make_repo: MakeRepo) -> None:
-    # A spine band deeper than the sheet leaves no space above it for the photo.
+def test_no_room_for_calendar_names_the_month(make_repo: MakeRepo) -> None:
+    # A binding strip deeper than the sheet leaves no room for the grid below it.
     root = make_repo(calendar_yaml="year: 2027\nbinding: {keep_clear_mm: 300}\n", copy_fonts=True)
-    with pytest.raises(BuildError, match="no room for the photo"):
+    with pytest.raises(BuildError, match="month 01: no room for the calendar"):
         _plans(root)
 
 
 def test_hanger_outside_keep_clear_zone_is_refused(make_repo: MakeRepo) -> None:
-    root = make_repo(calendar_yaml="year: 2027\nhanger: {offset_mm: 60}\n", copy_fonts=True)
+    root = make_repo(
+        calendar_yaml="year: 2027\nhanger: {x_mm: 148, offset_mm: 60}\n", copy_fonts=True
+    )
     with pytest.raises(BuildError, match="hanger hole overlaps the content area"):
         _plans(root)
 

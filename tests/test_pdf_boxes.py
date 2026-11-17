@@ -26,7 +26,7 @@ def _box(box: pypdf.generic.RectangleObject) -> tuple[float, float, float, float
 
 def test_page_boxes_match_trim_bleed_and_marks(draft_pdf: Path) -> None:
     # Expected from config/defaults.yaml: A3 trim, 3 mm bleed, trim marks offset 3 + length 5.
-    trim_w, trim_h, bleed = 420.0, 297.0, 3.0  # A3 landscape
+    trim_w, trim_h, bleed = 297.0, 210.0, 3.0  # A4-ish landscape placeholder
     outside = bleed + 3 + 5
     reader = pypdf.PdfReader(str(draft_pdf))
     for page in reader.pages:

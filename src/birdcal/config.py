@@ -139,7 +139,6 @@ class Spacing(_Model):
 
 class Layout(_Model):
     mode: Literal["photo_over_grid", "facing_pages"]
-    photo_height_mm: float = Field(gt=0)
     caption: Caption
     spacing: Spacing
 

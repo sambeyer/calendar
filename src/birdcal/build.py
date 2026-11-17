@@ -33,6 +33,7 @@ from birdcal.layout import (
     back_page,
     binding_and_hanger_ops,
     blank_page,
+    check_hanger,
     cover_page,
     month_page,
     next_month_page,
@@ -182,13 +183,14 @@ def plan_pages(
     back_photos = duplex and cfg.sides.back_content == "next_month_photo"
     plans: list[PagePlan] = []
     try:
+        check_hanger(cfg, ctx.geom)
         if cfg.pages.cover:
             cover = cover_page(ctx, _bird_view(cfg, data, cfg.pages.cover_month, statuses))
             plans.append(cover)
             if duplex:
                 if back_photos:
-                    # The cover's back shows January's photo, as the back of a sheet for the next month.
-                    plans.append(next_month_page(ctx, _bird_view(cfg, data, 1, statuses), year, 1))
+                    # The cover's back is January's photo: the first page after the cover.
+                    plans.append(next_month_page(ctx, _bird_view(cfg, data, 1, statuses), 1))
                 else:
                     plans.append(blank_page(ctx))
         labels = _day_labels(data)
@@ -197,11 +199,11 @@ def plan_pages(
             if duplex:
                 if back_photos:
                     next_month = grid.month % 12 + 1
-                    next_year = year + 1 if grid.month == 12 else year
-                    back = next_month_page(
-                        ctx, _bird_view(cfg, data, next_month, statuses), next_year, next_month
+                    plans.append(
+                        next_month_page(
+                            ctx, _bird_view(cfg, data, next_month, statuses), next_month
+                        )
                     )
-                    plans.append(back)
                 else:
                     plans.append(blank_page(ctx))
         if cfg.pages.back:

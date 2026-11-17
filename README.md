@@ -101,32 +101,31 @@ PDF dates (default: 2000-01-01).
 
 ## Layout
 
-- **Sheet:** 420 × 297 mm landscape (A3), with 3 mm bleed and trim marks.
-- **Spine:** `binding.edge: middle` runs the spiral across the middle of the sheet. The
-  keep-clear band (`binding.keep_clear_mm`) is centred on the middle line, and the holes sit on
-  that line. Nothing is printed inside the band.
-- **Front:** the month's photo fills the area above the band. The hanger hole sits at the top of
-  the photo (`hanger.offset_mm`, in the top margin). The calendar grid and caption fill the area
-  below the band.
-- **Back:** `sides.back_content: next_month_photo` prints the next month's photo above the band,
-  with its caption below. December's back shows January's photo, and the cover's back shows
-  January's photo too.
-- **Order:** cover and its back, then for each month the front followed by its back, then the
-  holiday page and its blank back when enabled. Single-sided prints one sheet per month.
-- **Hanger:** `hanger.pages` lists which sheets get a hanger hole. The default is every sheet,
-  front and back.
-- Caption (bird name, scientific name, description, credit) goes beside the grid by default,
-  or below it (`layout.caption.placement`).
+- **Sheet:** A4-ish landscape (297 × 210 mm placeholder, exact size TBD), with 3 mm bleed and
+  trim marks. Sheets are bound along the top, which is the long edge.
+- **Two kinds of page:**
+  - **Photo pages** are full bleed: the photo covers the whole page, bleed included. Holes are
+    punched through the photo.
+  - **Grid pages** have the binding strip (`binding.keep_clear_mm`) at the top, with the month
+    grid and the caption (beside the grid by default, or below it) under the strip.
+- **Order:** the cover, then the cover's back (January's photo), then January's grid. Each grid
+  page's back is the next month's photo, so February's photo is the back of January's grid.
+  December's grid is followed by January's photo again, since the calendar repeats each year.
+  The holiday page and its blank back follow when enabled. Single-sided prints one sheet per
+  month.
+- **Binding holes:** along the top edge at `binding.holes.edge_offset_mm`, spaced by
+  `pattern`. They are shown only in draft and proof.
+- **Hanger:** `hanger.pages` lists which sheets get a hanger hole (default: every sheet). The
+  placement is a placeholder (top-left corner, clear of the first binding hole). The build
+  refuses a hanger that overlaps a binding hole.
+- **Duplex:** `sides.mode: duplex` with `duplex_flip: long_edge`. The binding is along the long
+  edge, so each sheet turns over along its long edge, like a notepad page turned from the top.
 - Grid options: Sunday (default) or Monday start, ISO week numbers, greyed adjacent days, weekend
   shading, auto (5 or 6) or fixed six rows, day names as `Mon`, `M` or `Monday`.
 - Text shrinks to its minimum size, then the build fails naming the month and field. Text is
   never truncated.
-- The photo area is about 400 × 122 mm. A 3:2 photo filling that width would be 267 mm tall,
-  so `fill` shows only the middle 122 mm and crops about 54% of the height. `fit` shows the
-  whole photo, centred with white space at each side. Set `fit` per bird in `birds.yaml`.
-  Expect `check-photos` crop warnings while photos use `fill`.
-- Guides (trim, bleed, safe area, keep-clear zone, binding holes, hanger) appear only in
-  `draft` and `proof`. Trim marks, if enabled, appear in every mode.
+- Photos are fill or fit per bird (`birds.yaml`). On a full-page photo, a 3:2 photo with `fill`
+  crops about 6% of its width. `fit` shows the whole photo with white bars at the edges.
 
 ## Not yet built
 

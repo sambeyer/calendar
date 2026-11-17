@@ -12,10 +12,10 @@ def test_repo_config_loads_for_2027(repo_root: Path) -> None:
     loaded = load_config(repo_root, 2027)
     assert loaded.config.year == 2027
     assert loaded.config.printer_spec_confirmed is False
-    assert loaded.config.page.width_mm == 420
-    assert loaded.config.page.height_mm == 297
+    assert loaded.config.page.width_mm == 297
+    assert loaded.config.page.height_mm == 210
     assert loaded.config.page.orientation == "landscape"
-    assert loaded.config.binding.edge == "middle"
+    assert loaded.config.binding.edge == "top"
     assert loaded.config.sides.mode == "duplex"
 
 

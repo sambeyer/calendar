@@ -118,7 +118,7 @@ def test_release_tags_annotated_with_pdf_hash_and_build_info(
     pdf_sha = hashlib.sha256(result.pdf.read_bytes()).hexdigest()
     assert info["pdf_sha256"] == pdf_sha
     assert f"print PDF sha256 {pdf_sha}" in message
-    assert info["print"]["page_mm"] == [420.0, 297.0]
+    assert info["print"]["page_mm"] == [297.0, 210.0]
     assert info["print"]["bleed_mm"] == 3
     assert info["print"]["binding"] == "spiral"
     assert info["photos_lock_sha256"]
