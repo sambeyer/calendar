@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "pydantic>=2.7,<3",
     "pyyaml>=6.0,<7",
+    "reportlab>=5.1.0",
 ]
 
 [project.scripts]
@@ -19,6 +20,8 @@ dev = [
     "ruff>=0.5",
     "holidays>=0.50",
     "types-pyyaml>=6.0",
+    "pypdf>=7.1.0",
+    "types-reportlab>=5.1.0.20261104",
 ]
 
 [build-system]

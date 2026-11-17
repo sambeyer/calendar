@@ -125,10 +125,21 @@ class Caption(_Model):
     placement: Literal["below_grid", "beside_grid"]
 
 
+class Spacing(_Model):
+    title_height_mm: float = Field(gt=0)
+    header_height_mm: float = Field(gt=0)
+    number_height_mm: float = Field(gt=0)
+    gap_mm: float = Field(ge=0)
+    caption_height_mm: float = Field(gt=0, description="caption block height when below the grid")
+    caption_width_fraction: float = Field(gt=0, lt=1, description="caption share when beside")
+    week_number_width_mm: float = Field(ge=0)
+
+
 class Layout(_Model):
     mode: Literal["photo_over_grid", "facing_pages"]
     photo_height_mm: float = Field(gt=0)
     caption: Caption
+    spacing: Spacing
 
 
 class PpiPolicy(_Model):
@@ -206,7 +217,13 @@ class Labels(_Model):
 
 class Pages(_Model):
     cover: bool
+    cover_month: int = Field(ge=1, le=12, description="whose photo is the cover")
     back: bool
+
+
+class Draft(_Model):
+    placeholder_px_width: int = Field(ge=1)
+    placeholder_px_height: int = Field(ge=1)
 
 
 class SchoolTerms(_Model):
@@ -240,6 +257,7 @@ class Config(_Model):
     fonts: Fonts
     labels: Labels
     pages: Pages
+    draft: Draft
     locale: Locale
     school_terms: SchoolTerms
 
@@ -361,6 +379,11 @@ def check_supported(config: Config) -> None:
     if config.colour.mode == "cmyk":
         raise NotImplementedError(
             "colour.mode: cmyk is a stretch goal and not implemented in v1; use 'rgb'"
+        )
+    if config.binding.edge == "left":
+        raise NotImplementedError(
+            "binding.edge: left is not implemented in v1 (needs a landscape hole pattern); "
+            "use top or bottom"
         )
     if config.school_terms.enabled:
         raise NotImplementedError("school_terms.enabled: true is not implemented in v1")

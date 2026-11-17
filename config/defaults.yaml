@@ -67,6 +67,14 @@ layout:
   photo_height_mm: 170
   caption:
     placement: below_grid  # below_grid | beside_grid
+  spacing:
+    title_height_mm: 14
+    header_height_mm: 6
+    number_height_mm: 5
+    gap_mm: 4
+    caption_height_mm: 42
+    caption_width_fraction: 0.34
+    week_number_width_mm: 8
 
 photo:
   fit: fill  # fill (uses focal point) | fit (whole photo, letterboxed)
@@ -109,7 +117,13 @@ labels:
 
 pages:
   cover: true
-  back: false
+  cover_month: 1  # whose bird photo is on the cover
+  back: false  # back page lists the year's holidays and events
+
+draft:
+  # Placeholder size used for draft builds when a photo is missing (its pixels are unknown).
+  placeholder_px_width: 6000
+  placeholder_px_height: 4000
 
 locale:
   language: en-AU

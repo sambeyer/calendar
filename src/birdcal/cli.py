@@ -78,6 +78,27 @@ def cmd_validate(root: Path, year: int) -> int:
     return EXIT_VALIDATION if errors else EXIT_OK
 
 
+def cmd_build(root: Path, year: int, mode: str) -> int:
+    from birdcal.build import BuildError, build_calendar
+
+    try:
+        loaded = load_config(root, year)
+    except (ConfigError, NotImplementedError) as exc:
+        print(f"configuration error: {exc}", file=sys.stderr)
+        return EXIT_CONFIG
+    report_unconfirmed(loaded)
+    print()
+    try:
+        result = build_calendar(root, year, mode)  # type: ignore[arg-type]
+    except BuildError as exc:
+        print(f"build failed: {exc}", file=sys.stderr)
+        return EXIT_VALIDATION
+    for warning in result.warnings:
+        print(warning if warning.startswith(("WARNING", "ERROR")) else f"WARNING {warning}")
+    print(f"wrote {result.path} ({result.pages} pages, mode={result.mode})")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="birdcal", description="Bird photo calendar builder")
     parser.add_argument(
@@ -89,6 +110,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     validate = sub.add_parser("validate", help="check configuration and data for a year")
     validate.add_argument("year", type=int)
+    build = sub.add_parser("build", help="build the calendar PDF")
+    build.add_argument("year", type=int)
+    build.add_argument("--mode", choices=["draft", "proof", "print"], default="draft")
     return parser
 
 
@@ -101,6 +125,8 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_CONFIG
     if args.command == "validate":
         return cmd_validate(root, args.year)
+    if args.command == "build":
+        return cmd_build(root, args.year, args.mode)
     raise AssertionError(f"unhandled command {args.command!r}")  # pragma: no cover
 
 
