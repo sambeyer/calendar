@@ -100,9 +100,9 @@ class PagePlan:
     ops: tuple[Op, ...]
     guides: tuple[Op, ...] = field(default=())
     content: Rect | None = None
-    # Printed upside down relative to the front: the back of a flip-top sheet. The page is
-    # laid out as usual and turned 180 degrees when rendered, so its binding edge is at the bottom.
-    turned: bool = False
+    # The back of a flip-top sheet: the photo is upright, but the binding holes and hanger hole
+    # sit along the bottom edge instead of the top.
+    binding_at_bottom: bool = False
 
 
 # --- inputs --------------------------------------------------------------------
@@ -221,15 +221,19 @@ def trim_mark_ops(config: Config, geom: SheetGeometry) -> list[Op]:
     return ops
 
 
-def hanger_centre(config: Config) -> tuple[float, float]:
-    return config.hanger.x_mm, config.hanger.offset_mm
+def hanger_centre(
+    config: Config, geom: SheetGeometry, at_bottom: bool = False
+) -> tuple[float, float]:
+    """Hanger hole centre in trim mm. ``at_bottom`` mirrors it to the bottom edge."""
+    y = config.hanger.offset_mm
+    return config.hanger.x_mm, geom.trim_h - y if at_bottom else y
 
 
-def _hanger_ops(config: Config, kind: str) -> list[Op]:
+def _hanger_ops(config: Config, geom: SheetGeometry, kind: str, at_bottom: bool) -> list[Op]:
     hanger = config.hanger
     if not hanger.enabled or kind not in hanger.pages:
         return []
-    cx, cy = hanger_centre(config)
+    cx, cy = hanger_centre(config, geom, at_bottom)
     return [Circle(cx, cy, hanger.diameter_mm / 2, "#D00000", 0.5)]
 
 
@@ -257,7 +261,7 @@ def _hanger_clear_check(config: Config, geom: SheetGeometry, content: Rect, kind
     hanger = config.hanger
     if not hanger.enabled or kind not in hanger.pages:
         return
-    cx, cy = hanger_centre(config)
+    cx, cy = hanger_centre(config, geom)
     r = hanger.diameter_mm / 2
     hole = Rect(cx - r, cy - r, 2 * r, 2 * r)
     if not geom.trim_rect.contains(hole):
@@ -664,7 +668,7 @@ def photo_page(
     guides: list[Op] = [
         StrokeRect(ctx.geom.bleed_rect, "#1F6FD6", 0.25, (3.0, 2.0)),
         StrokeRect(ctx.geom.trim_rect, "#E0301E", 0.25),
-        *_hole_guides(ctx),
+        *_hole_guides(ctx, at_bottom=kind == "next_photo"),
     ]
     return PagePlan(
         kind=kind,
@@ -672,7 +676,7 @@ def photo_page(
         ops=tuple(ops),
         guides=tuple(guides),
         content=rect,
-        turned=kind == "next_photo",
+        binding_at_bottom=kind == "next_photo",
     )
 
 
@@ -749,19 +753,20 @@ def _common_guides(ctx: LayoutContext) -> list[Op]:
     return guides
 
 
-def _hole_guides(ctx: LayoutContext) -> list[Op]:
+def _hole_guides(ctx: LayoutContext, at_bottom: bool = False) -> list[Op]:
     holes = ctx.config.binding.holes
     if holes is None:
         return []
+    trim_h = ctx.geom.trim_h
     return [
-        Circle(x, y, holes.diameter_mm / 2, "#E0301E", 0.4)
+        Circle(x, trim_h - y if at_bottom else y, holes.diameter_mm / 2, "#E0301E", 0.4)
         for x, y in hole_centres(ctx.config, ctx.geom)
     ]
 
 
-def binding_and_hanger_ops(ctx: LayoutContext, kind: str) -> list[Op]:
+def binding_and_hanger_ops(ctx: LayoutContext, kind: str, at_bottom: bool = False) -> list[Op]:
     """Physical features the printer punches. Drawn only in proof and draft guides."""
-    return _hanger_ops(ctx.config, kind)
+    return _hanger_ops(ctx.config, ctx.geom, kind, at_bottom)
 
 
 def placeholder_image_op(ctx: LayoutContext, rect: Rect, bird: BirdView) -> ImageOp:

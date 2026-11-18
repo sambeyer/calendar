@@ -227,7 +227,7 @@ _HANGER_KIND: dict[str, str] = {
 
 def _with_features(ctx: LayoutContext, plan: PagePlan) -> PagePlan:
     """Attach hanger and binding guides (drawn only in guided modes) to a page."""
-    extra = binding_and_hanger_ops(ctx, _HANGER_KIND[plan.kind])
+    extra = binding_and_hanger_ops(ctx, _HANGER_KIND[plan.kind], at_bottom=plan.binding_at_bottom)
     return replace(plan, guides=plan.guides + tuple(extra))
 
 

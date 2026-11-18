@@ -115,9 +115,9 @@ PDF dates (default: 2000-01-01).
   The holiday page and its blank back follow when enabled. Single-sided prints one sheet per
   month.
 - **Binding holes:** along the top edge of the cover and the grid pages, at
-  `binding.holes.edge_offset_mm`, spaced by `pattern`. The photo backs are turned 180°, so
-  their binding sits at the bottom of the page, as it does when the sheet is flipped up. The
-  holes are shown only in draft and proof.
+  `binding.holes.edge_offset_mm`, spaced by `pattern`. On the photo backs the photo stays upright,
+  but the holes sit along the bottom edge, so they are at the bottom when the sheet is flipped
+  up. The holes are shown only in draft and proof.
 - **Hanger:** `hanger.pages` lists which sheets get a hanger hole (default: every sheet). The
   placement is a placeholder (top-left corner, clear of the first binding hole). The build
   refuses a hanger that overlaps a binding hole.

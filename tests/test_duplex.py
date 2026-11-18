@@ -93,14 +93,16 @@ def test_hanger_hole_is_on_every_sheet(repo_root: Path) -> None:
     ctx, plans = _plans(repo_root)
     hanger = ctx.config.hanger  # type: ignore[attr-defined]
     radius = hanger.diameter_mm / 2
+    trim_h = ctx.geom.trim_h  # type: ignore[attr-defined]
     for plan in plans:
+        y = trim_h - hanger.offset_mm if plan.binding_at_bottom else hanger.offset_mm
         found = [
             op
             for op in plan.guides
             if isinstance(op, Circle)
             and abs(op.r - radius) < 1e-9
             and abs(op.cx - hanger.x_mm) < 1e-9
-            and abs(op.cy - hanger.offset_mm) < 1e-9
+            and abs(op.cy - y) < 1e-9
         ]
         assert len(found) == 1, f"{plan.kind} {plan.month} has no hanger hole"
 
@@ -112,26 +114,24 @@ def test_single_sided_keeps_one_sheet_per_month(make_repo: MakeRepo) -> None:
     assert all(p.kind not in ("blank", "next_photo") for p in plans)
 
 
-def test_only_the_backs_of_sheets_are_turned(repo_root: Path) -> None:
-    """Photo backs are printed upside down relative to the front, so their binding is at the
-    bottom. The cover front and the grid pages keep the binding at the top."""
+def test_only_the_backs_of_sheets_have_the_binding_at_the_bottom(repo_root: Path) -> None:
+    """Photo backs are upright, with the binding at the bottom. The cover front and the grid
+    pages keep the binding at the top."""
     _, plans = _plans(repo_root)
     for plan in plans:
         expected = plan.kind == "next_photo"
-        assert plan.turned is expected, f"{plan.kind} {plan.month}"
+        assert plan.binding_at_bottom is expected, f"{plan.kind} {plan.month}"
 
 
-def test_turned_pages_are_rotated_in_the_pdf(repo_root: Path, tmp_path: Path) -> None:
+def test_photos_are_never_rotated_in_the_pdf(repo_root: Path, tmp_path: Path) -> None:
+    """Images stay the right way up; only the binding features move."""
     import pypdf
 
     from birdcal.build import build_calendar
 
     result = build_calendar(repo_root, 2027, "draft", out_dir=tmp_path)
     reader = pypdf.PdfReader(str(result.path))
-    cover = reader.pages[0].get_contents()
-    back = reader.pages[1].get_contents()
-    assert cover is not None and back is not None
-    cover_bytes = cover.get_data()
-    back_bytes = back.get_data()
-    assert b"-1 0 0 -1" not in cover_bytes, "cover front must not be turned"
-    assert b"-1 0 0 -1" in back_bytes, "the back of the cover must be turned 180 degrees"
+    for page in reader.pages[:4]:
+        contents = page.get_contents()
+        assert contents is not None
+        assert b"-1 0 0 -1" not in contents.get_data()

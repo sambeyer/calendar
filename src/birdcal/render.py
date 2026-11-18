@@ -229,19 +229,11 @@ class PdfRenderer:
     # pages --------------------------------------------------------------------
     def add_page(self, plan: PagePlan, marks: Sequence[Op], *, guides: bool) -> None:
         self._set_boxes()
-        c = self.canvas
-        if plan.turned:
-            # Rotate about the centre of the media box: a point (x, y) moves to (W - x, H - y).
-            c.saveState()
-            c.translate(self.geom.media_w * PT_PER_MM, self.geom.media_h * PT_PER_MM)
-            c.rotate(180)
         for op in plan.ops:
             self.draw_op(op)
         if guides:
             for op in plan.guides:
                 self.draw_op(op)
-        if plan.turned:
-            c.restoreState()
         for op in marks:
             self.draw_op(op)
         self.canvas.showPage()
