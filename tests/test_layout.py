@@ -244,3 +244,20 @@ def test_config_error_is_build_error(make_repo: MakeRepo, tmp_path: Path) -> Non
     root = make_repo(calendar_yaml="year: 2027\nlayout: {mode: facing_pages}\n", copy_fonts=True)
     with pytest.raises(BuildError, match="facing_pages"):
         build_calendar(root, 2027, "draft", out_dir=tmp_path)
+
+
+def test_hanger_hole_is_centred_and_clear_of_every_binding_hole(repo_root: Path) -> None:
+    from birdcal.build import geometry_for
+    from birdcal.layout import HANGER_GAP_MM
+
+    cfg = load_config(repo_root, 2027).config
+    geom = geometry_for(cfg)
+    hanger = cfg.hanger
+    holes = cfg.binding.holes
+    assert holes is not None
+    assert hanger.x_mm == geom.trim_w / 2
+    min_horizontal = hanger.diameter_mm / 2 + holes.diameter_mm / 2 + HANGER_GAP_MM
+    # Holes sit in the same row as the hanger, so the horizontal distance is what matters.
+    for x, _y in hole_centres(cfg, geom):
+        assert abs(x - hanger.x_mm) >= min_horizontal - 1e-9
+    assert len(hole_centres(cfg, geom)) == 32  # one hole left out for the hanger

@@ -47,9 +47,9 @@ binding:
 hanger:
   enabled: true  # TODO(printer)
   shape: hole  # TODO(printer)
-  diameter_mm: 6  # TODO(printer)
-  x_mm: 5  # TODO(printer)  placeholder: top-left corner, clear of the first binding hole
-  offset_mm: 6  # TODO(printer)  placeholder: level with the binding holes
+  diameter_mm: 5  # TODO(printer)  template shows about 5 mm
+  x_mm: 148.5  # TODO(printer)  centre of the top edge; the binding hole here is left out
+  offset_mm: 8  # TODO(printer)  about 8 mm down from the top edge, as in the template
   pages: [cover, months, back, blank]  # TODO(printer)  every sheet, front and back
 
 sides:

@@ -173,6 +173,9 @@ def photo_region(geom: SheetGeometry) -> Rect:
     return geom.bleed_rect
 
 
+HANGER_GAP_MM = 1.0  # minimum clear space between the hanger hole and a binding hole
+
+
 def hole_centres(config: Config, geom: SheetGeometry) -> list[tuple[float, float]]:
     """Binding hole centres in trim mm, along the top or bottom long edge."""
     holes = config.binding.holes
@@ -201,6 +204,12 @@ def hole_centres(config: Config, geom: SheetGeometry) -> list[tuple[float, float
         y = holes.edge_offset_mm
     else:
         y = geom.trim_h - holes.edge_offset_mm
+    # Leave out any hole that would touch the hanger hole, which sits in the same row
+    # at the centre. Every other hole keeps its place in the even pattern.
+    hanger = config.hanger
+    if hanger.enabled:
+        clearance = hanger.diameter_mm / 2 + holes.diameter_mm / 2 + HANGER_GAP_MM
+        positions = [x for x in positions if abs(x - hanger.x_mm) >= clearance]
     return [(x, y) for x in positions]
 
 
