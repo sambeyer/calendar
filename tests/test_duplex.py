@@ -88,9 +88,9 @@ def test_grid_pages_sit_below_the_binding_strip(repo_root: Path) -> None:
     assert all(op.rect.y >= band.bottom - 1e-6 for op in texts)
 
 
-def test_hanger_hole_is_on_photo_pages_only(repo_root: Path) -> None:
-    """The hanger sits at the top of each photo (the cover and every photo back), never on a
-    grid page, and never mirrored."""
+def test_hanger_hole_is_on_every_photo_back_only(repo_root: Path) -> None:
+    """The hanger sits at the top of every photo back (every second page), never on the cover
+    or a grid page."""
     ctx, plans = _plans(repo_root)
     hanger = ctx.config.hanger  # type: ignore[attr-defined]
     radius = hanger.diameter_mm / 2
@@ -103,7 +103,7 @@ def test_hanger_hole_is_on_photo_pages_only(repo_root: Path) -> None:
             and abs(op.cx - hanger.x_mm) < 1e-9
             and abs(op.cy - hanger.offset_mm) < 1e-9
         ]
-        if plan.kind in ("cover", "next_photo"):
+        if plan.kind == "next_photo":
             assert len(found) == 1, f"{plan.kind} {plan.month} has no hanger hole"
         else:
             assert not found, f"{plan.kind} {plan.month} must not have a hanger hole"

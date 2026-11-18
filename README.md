@@ -118,10 +118,10 @@ PDF dates (default: 2000-01-01).
   (`binding.holes.edge_offset_mm`), spaced by `pattern`. Every hole is kept. On the photo backs
   the photo stays upright, but the holes sit along the bottom edge, so they are at the bottom
   when the sheet is flipped up. The holes are shown only in draft and proof.
-- **Hanger:** a hole at the centre of the top of each photo page (the cover and every photo
-  back), 4.5 mm down, above the binding row and never in it. `hanger.pages` lists the page types
-  that get one. Grid pages never have one. The build refuses a hanger that overlaps a binding
-  hole.
+- **Hanger:** a hole at the centre of the top of every photo back (every second page), 4.5 mm
+  down, above the binding row and never in it. The cover and grid pages have none.
+  `hanger.pages` lists the page types that get one. The build refuses a hanger that overlaps a
+  binding hole.
 - **Duplex:** `sides.mode: duplex` with `duplex_flip: long_edge`. The binding is along the long
   edge, so each sheet turns over along its long edge, like a notepad page turned from the top.
 - Grid options: Sunday (default) or Monday start, ISO week numbers, greyed adjacent days, weekend
