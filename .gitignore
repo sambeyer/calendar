@@ -10,3 +10,23 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 *.egg-info/
+# photographs: they stay on the machine that builds the calendar, never in git.
+# photos.lock (hashes and file names only) is still committed.
+photos/
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.png
+*.PNG
+*.tif
+*.tiff
+*.TIF
+*.heic
+*.HEIC
+*.raw
+*.dng
+*.cr2
+*.nef
+*.arw
+*.psd
