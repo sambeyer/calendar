@@ -22,7 +22,7 @@ page:
   orientation: landscape  # TODO(printer)
 
 bleed_mm: 3  # TODO(printer)
-safe_margin_mm: 10  # TODO(printer)
+safe_margin_mm: 5  # TODO(printer)  text and grid stay 5 mm from the trim edge (matches the template)
 
 trim_marks:
   enabled: true  # TODO(printer)
