@@ -110,3 +110,25 @@ def test_single_sided_keeps_one_sheet_per_month(make_repo: MakeRepo) -> None:
     _, plans = _plans(root)
     assert len(plans) == 13
     assert all(p.kind not in ("blank", "next_photo") for p in plans)
+
+
+def test_only_the_backs_of_sheets_are_turned(repo_root: Path) -> None:
+    """Photo backs are printed upside down relative to the front, so their binding is at the
+    bottom. The cover front and the grid pages keep the binding at the top."""
+    _, plans = _plans(repo_root)
+    for plan in plans:
+        expected = plan.kind == "next_photo"
+        assert plan.turned is expected, f"{plan.kind} {plan.month}"
+
+
+def test_turned_pages_are_rotated_in_the_pdf(repo_root: Path, tmp_path: Path) -> None:
+    import pypdf
+
+    from birdcal.build import build_calendar
+
+    result = build_calendar(repo_root, 2027, "draft", out_dir=tmp_path)
+    reader = pypdf.PdfReader(str(result.path))
+    cover = reader.pages[0].get_contents().get_data()
+    back = reader.pages[1].get_contents().get_data()
+    assert b"-1 0 0 -1" not in cover, "cover front must not be turned"
+    assert b"-1 0 0 -1" in back, "the back of the cover must be turned 180 degrees"

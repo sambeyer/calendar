@@ -100,6 +100,9 @@ class PagePlan:
     ops: tuple[Op, ...]
     guides: tuple[Op, ...] = field(default=())
     content: Rect | None = None
+    # Printed upside down relative to the front: the back of a flip-top sheet. The page is
+    # laid out as usual and turned 180 degrees when rendered, so its binding edge is at the bottom.
+    turned: bool = False
 
 
 # --- inputs --------------------------------------------------------------------
@@ -663,7 +666,14 @@ def photo_page(
         StrokeRect(ctx.geom.trim_rect, "#E0301E", 0.25),
         *_hole_guides(ctx),
     ]
-    return PagePlan(kind=kind, month=month, ops=tuple(ops), guides=tuple(guides), content=rect)
+    return PagePlan(
+        kind=kind,
+        month=month,
+        ops=tuple(ops),
+        guides=tuple(guides),
+        content=rect,
+        turned=kind == "next_photo",
+    )
 
 
 def next_month_page(ctx: LayoutContext, bird: BirdView, next_month: int) -> PagePlan:

@@ -15,7 +15,7 @@ from __future__ import annotations
 import datetime as dt
 from collections import Counter
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Literal
 
@@ -228,13 +228,7 @@ _HANGER_KIND: dict[str, str] = {
 def _with_features(ctx: LayoutContext, plan: PagePlan) -> PagePlan:
     """Attach hanger and binding guides (drawn only in guided modes) to a page."""
     extra = binding_and_hanger_ops(ctx, _HANGER_KIND[plan.kind])
-    return PagePlan(
-        kind=plan.kind,
-        month=plan.month,
-        ops=plan.ops,
-        guides=plan.guides + tuple(extra),
-        content=plan.content,
-    )
+    return replace(plan, guides=plan.guides + tuple(extra))
 
 
 def photo_findings(
