@@ -128,7 +128,10 @@ def test_turned_pages_are_rotated_in_the_pdf(repo_root: Path, tmp_path: Path) ->
 
     result = build_calendar(repo_root, 2027, "draft", out_dir=tmp_path)
     reader = pypdf.PdfReader(str(result.path))
-    cover = reader.pages[0].get_contents().get_data()
-    back = reader.pages[1].get_contents().get_data()
-    assert b"-1 0 0 -1" not in cover, "cover front must not be turned"
-    assert b"-1 0 0 -1" in back, "the back of the cover must be turned 180 degrees"
+    cover = reader.pages[0].get_contents()
+    back = reader.pages[1].get_contents()
+    assert cover is not None and back is not None
+    cover_bytes = cover.get_data()
+    back_bytes = back.get_data()
+    assert b"-1 0 0 -1" not in cover_bytes, "cover front must not be turned"
+    assert b"-1 0 0 -1" in back_bytes, "the back of the cover must be turned 180 degrees"
