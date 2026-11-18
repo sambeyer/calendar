@@ -40,7 +40,7 @@ binding:
       pitch_mm: 8.47  # TODO(printer)  3:1 spiral, i.e. 3 holes per inch
       holes_per_inch: null
       count: null
-    edge_offset_mm: 11  # TODO(printer)  hole centre distance from the top edge; lowered to make room for the hanger above it
+    edge_offset_mm: 7.4  # TODO(printer)  hole centre distance from the edge: 5 mm to the outer edge of each hole
     end_margin_mm: 10  # TODO(printer)
     centre: true  # TODO(printer)
 

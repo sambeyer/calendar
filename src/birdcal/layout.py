@@ -247,11 +247,20 @@ def check_hanger(config: Config, geom: SheetGeometry) -> None:
     if holes is None:
         return
     hr = holes.diameter_mm / 2
-    for x, y in hole_centres(config, geom):
-        if hole.overlaps(Rect(x - hr, y - hr, 2 * hr, 2 * hr)):
-            raise LayoutError(
-                "hanger hole overlaps a binding hole; move hanger.x_mm or hanger.offset_mm"
-            )
+    # Check each side the hanger appears on: front pages have the holes where they are drawn,
+    # and photo backs have them mirrored to the bottom edge.
+    sides: list[bool] = []
+    if any(kind != "photo_back" for kind in hanger.pages):
+        sides.append(False)
+    if "photo_back" in hanger.pages:
+        sides.append(True)
+    for at_bottom in sides:
+        for x, y in hole_centres(config, geom):
+            hy = geom.trim_h - y if at_bottom else y
+            if hole.overlaps(Rect(x - hr, hy - hr, 2 * hr, 2 * hr)):
+                raise LayoutError(
+                    "hanger hole overlaps a binding hole; move hanger.x_mm or hanger.offset_mm"
+                )
 
 
 # --- text helpers ----------------------------------------------------------------

@@ -215,8 +215,10 @@ def test_no_room_for_calendar_names_the_month(make_repo: MakeRepo) -> None:
 
 
 def test_hanger_in_the_binding_row_is_refused(make_repo: MakeRepo) -> None:
+    # On the cover the holes are at the top, so a hanger at their height must be refused.
     root = make_repo(
-        calendar_yaml="year: 2027\nhanger: {x_mm: 148, offset_mm: 11}\n", copy_fonts=True
+        calendar_yaml="year: 2027\nhanger: {x_mm: 148, offset_mm: 7.4, pages: [cover]}\n",
+        copy_fonts=True,
     )
     with pytest.raises(BuildError, match="hanger hole overlaps a binding hole"):
         _plans(root)
@@ -246,17 +248,14 @@ def test_config_error_is_build_error(make_repo: MakeRepo, tmp_path: Path) -> Non
         build_calendar(root, 2027, "draft", out_dir=tmp_path)
 
 
-def test_hanger_hole_is_centred_and_clear_of_the_binding(repo_root: Path) -> None:
+def test_hanger_hole_is_centred_and_on_the_opposite_side_to_the_binding(repo_root: Path) -> None:
     from birdcal.build import geometry_for
+    from birdcal.layout import check_hanger
 
     cfg = load_config(repo_root, 2027).config
     geom = geometry_for(cfg)
     hanger = cfg.hanger
-    holes = cfg.binding.holes
-    assert holes is not None
     assert hanger.x_mm == geom.trim_w / 2
-    # Every binding hole is kept: the hanger is above the row, not in it.
-    assert len(hole_centres(cfg, geom)) == 33
-    hole_top = holes.edge_offset_mm - holes.diameter_mm / 2
-    hanger_bottom = hanger.offset_mm + hanger.diameter_mm / 2
-    assert hole_top - hanger_bottom >= 1.0 - 1e-9
+    check_hanger(cfg, geom)  # does not raise
+    # The hanger is on the photo backs, at the top; their holes are mirrored to the bottom.
+    assert len(hole_centres(cfg, geom)) == 33  # every binding hole is kept

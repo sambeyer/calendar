@@ -114,8 +114,8 @@ PDF dates (default: 2000-01-01).
   December's grid is followed by January's photo again, since the calendar repeats each year.
   The holiday page and its blank back follow when enabled. Single-sided prints one sheet per
   month.
-- **Binding holes:** along the top edge of the cover and the grid pages, 11 mm from the edge
-  (`binding.holes.edge_offset_mm`), spaced by `pattern`. Every hole is kept. On the photo backs
+- **Binding holes:** along the top edge of the cover and the grid pages, starting 5 mm from the edge
+  (outer edge of each hole; `binding.holes.edge_offset_mm` is the centre, 7.4 mm), spaced by `pattern`. Every hole is kept. On the photo backs
   the photo stays upright, but the holes sit along the bottom edge, so they are at the bottom
   when the sheet is flipped up. The holes are shown only in draft and proof.
 - **Hanger:** a hole at the centre of the top of every photo back (every second page), 4.5 mm
