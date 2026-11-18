@@ -33,7 +33,7 @@ trim_marks:
 binding:
   type: spiral  # TODO(printer)
   edge: top  # TODO(printer)  binding along the long edge, at the top of each page
-  keep_clear_mm: 25  # TODO(printer)  binding strip at the top of grid pages (photo pages are full bleed)
+  keep_clear_mm: 12  # TODO(printer)  space kept clear at the top of grid pages for the binding holes
   holes:
     diameter_mm: 4.8  # TODO(printer)
     pattern:

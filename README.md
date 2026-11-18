@@ -106,7 +106,7 @@ PDF dates (default: 2000-01-01).
 - **Two kinds of page:**
   - **Photo pages** are full bleed: the photo covers the whole page, bleed included. Holes are
     punched through the photo.
-  - **Grid pages** have the binding strip (`binding.keep_clear_mm`) at the top, with the month
+  - **Grid pages** keep `binding.keep_clear_mm` (12 mm) clear at the top for the binding holes, with the month
     grid under the strip, with the caption (bird name, description, credit) at the bottom of the
     page and the grid spanning the full width (`layout.caption.placement`).
 - **Order:** the cover, then the cover's back (January's photo), then January's grid. Each grid

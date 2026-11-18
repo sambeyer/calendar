@@ -743,9 +743,6 @@ def _common_guides(ctx: LayoutContext) -> list[Op]:
     geom = ctx.geom
     guides: list[Op] = []
     safe = geom.trim_rect.inset(cfg.safe_margin_mm)
-    keep = keep_clear_rect(cfg, geom)
-    if keep is not None:
-        guides.append(FillRect(keep, "#FFD9A8"))
     guides.append(StrokeRect(geom.bleed_rect, "#1F6FD6", 0.25, (3.0, 2.0)))
     guides.append(StrokeRect(safe, "#2E9E4F", 0.25, (3.0, 2.0)))
     guides.append(StrokeRect(geom.trim_rect, "#E0301E", 0.25))
