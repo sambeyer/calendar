@@ -4,97 +4,97 @@ year: 2027
 birds:
   - month: 1
     common_name: Rainbow Lorikeet
-    scientific_name: Trichoglossus moluccanus
+    scientific_name: Yeetus Lorikeetus
     description: A colourful nectar-feeding parrot with a blue head, green back and orange chest.
-    location: null
+    location: Jolon's old house, Mulgrave
     date_taken: null
     photo_credit: null
     photo: {file: January.jpeg}
   - month: 2
-    common_name: Australasian Gannet
-    scientific_name: Morus serrator
+    common_name: Australian Gannet
+    scientific_name: Gannetus Planetus
     description: A large white seabird with a golden head and black wingtips. It nests in dense colonies on offshore islands and cliffs.
-    location: null
+    location: Gannet colony, Point Danger
     date_taken: null
     photo_credit: null
     photo: {file: February.jpeg}
   - month: 3
-    common_name: Silvereye
-    scientific_name: Zosterops lateralis
-    description: A small olive-green bird with a white eye-ring, found in gardens and bushland across southern Australia.
-    location: null
+    common_name: Striated Grasswren
+    scientific_name: Mister Grassus Wreni
+    description: A small, streaked brown bird of dry inland mallee and woodland country in north-west Victoria.
+    location: Hattah-Kulkyne National Park
     date_taken: null
     photo_credit: null
-    photo: {file: March.jpeg}
+    photo: {file: May.jpeg}
   - month: 4
-    common_name: Musk Duck
-    scientific_name: Biziura lobata
-    description: A mottled brown female of this diving duck, which lives on deep wetlands in southern Australia.
-    location: null
+    common_name: Freckled Duck
+    scientific_name: Duckus Duckus Goosus
+    description: A dark brown duck with a freckled chest. It gathers on inland swamps and wetlands that fill after heavy rain.
+    location: Braeside Park
     date_taken: null
     photo_credit: null
     photo: {file: April.jpeg}
   - month: 5
-    common_name: Striated Fieldwren
-    scientific_name: Calamanthus fuliginosus
-    description: A small, streaked, ground-dwelling bird of heath and shrubland in southern Australia.
-    location: null
+    common_name: Silvereye
+    scientific_name: Ag Oculus
+    description: A small olive-green bird with a white eye-ring, found in gardens and bushland across southern Australia.
+    location: Howqua near Frys Flat
     date_taken: null
     photo_credit: null
-    photo: {file: May.jpeg}
+    photo: {file: March.jpeg}
   - month: 6
     common_name: Crested Pigeon
-    scientific_name: Ocyphaps lophotes
+    scientific_name: Pigeoerectus
     description: A grey-brown pigeon with a backward-sweeping crest, common in grasslands and towns across inland Australia.
-    location: null
+    location: Just out of Echuca
     date_taken: null
     photo_credit: null
     photo: {file: June.jpeg}
   - month: 7
-    common_name: Brolga
-    scientific_name: Antigone rubicunda
-    description: A tall grey crane with a red head, known for its dancing displays on wetlands and floodplains.
-    location: null
-    date_taken: null
-    photo_credit: null
-    photo: {file: IMG_2058_2.jpeg}
-  - month: 8
-    common_name: null
-    scientific_name: null
-    description: null
-    location: null
+    common_name: Red-capped Robin (female)
+    scientific_name: Rossa Robina
+    description: The female is grey-brown with a rufous cap and white underparts. She hunts insects from low perches in open woodland.
+    location: Longwood fire ash, after the Longwood fires
     date_taken: null
     photo_credit: null
     photo: {file: August.jpeg}
+  - month: 8
+    common_name: Brolga
+    scientific_name: Nota Flamingus
+    description: A tall grey crane with a red head, known for its dancing displays on wetlands and floodplains.
+    location: Western Treatment Plant (the poo farm), Werribee
+    date_taken: null
+    photo_credit: null
+    photo: {file: IMG_2058_2.jpeg}
   - month: 9
     common_name: Swift Parrot
     scientific_name: Lathamus discolor
-    description: A bright green parrot with a red face. It breeds in Tasmania and flies to the mainland to feed on flowering eucalypts.
-    location: null
+    description: Critically endangered, mainly due to logging. A lot of work is needed to ensure the survival of this species.
+    location: Plenty Gorge Park
     date_taken: null
     photo_credit: null
     photo: {file: September.jpg}
   - month: 10
-    common_name: null
+    common_name: Grey Teal
     scientific_name: null
-    description: null
-    location: null
+    description: A small grey-brown duck of inland and coastal wetlands.
+    location: Gemmills Swamp, Mooroopna
     date_taken: null
     photo_credit: null
     photo: {file: October.jpeg}
   - month: 11
     common_name: Eastern Spinebill
-    scientific_name: Acanthorhynchus tenuirostris
+    scientific_name: Lumbar williami
     description: A honeyeater with a long, curved bill that feeds on nectar from flowering shrubs along the east coast.
-    location: null
+    location: Grampians National Park
     date_taken: null
     photo_credit: null
     photo: {file: November.jpeg}
   - month: 12
     common_name: Pink Robin
-    scientific_name: Petroica rodinogaster
+    scientific_name: Pinky Dinky
     description: The male has a bright pink breast. This small robin lives in dense forest in south-east Australia and Tasmania.
-    location: null
+    location: Mt Donna Buang
     date_taken: null
     photo_credit: null
     photo: {file: December.jpg}
