@@ -186,7 +186,7 @@ def test_oversized_description_names_month_and_field(make_repo: MakeRepo) -> Non
 
 
 def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
-    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 10
+    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 5
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(
@@ -203,8 +203,25 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
     sizes = sorted({op.size_pt for op in desc})
     assert sizes
     assert min(sizes) < 10  # shrank below the 10 pt role size to fit
+    assert all(len(op.lines) <= 2 for op in desc), "descriptions are limited to two lines"
     for plan in plans:
         _assert_page_invariants(ctx, plan)
+
+
+def test_description_longer_than_two_lines_at_minimum_size_fails(make_repo: MakeRepo) -> None:
+    text = "A very long description that cannot be shown in two lines at any allowed size. " * 30
+    root = make_repo(copy_fonts=True)
+    birds = root / "calendars" / "2027" / "birds.yaml"
+    birds.write_text(
+        birds.read_text(encoding="utf-8").replace(
+            "  - month: 1\n    common_name: null\n    scientific_name: null\n    description: null",
+            f"  - month: 1\n    common_name: Test\n    scientific_name: Testus\n    description: {text.strip()}",
+            1,
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(BuildError, match="01 description"):
+        _plans(root)
 
 
 def test_no_room_for_calendar_names_the_month(make_repo: MakeRepo) -> None:

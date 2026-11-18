@@ -71,7 +71,7 @@ layout:
     header_height_mm: 6
     number_height_mm: 5
     gap_mm: 4
-    caption_height_mm: 42
+    caption_height_mm: 32
     caption_width_fraction: 0.34
     week_number_width_mm: 8
 

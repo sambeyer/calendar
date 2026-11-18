@@ -18,7 +18,7 @@ from typing import Literal
 from birdcal.config import Config, FontRole
 from birdcal.dates import MonthGrid, column_weekdays, day_name, month_title
 from birdcal.geometry import Rect, SheetGeometry
-from birdcal.text import TextFitError, fit_text
+from birdcal.text import LEADING, TextFitError, fit_text
 
 Align = Literal["left", "centre", "right"]
 
@@ -346,11 +346,9 @@ def _caption_ops(ctx: LayoutContext, rect: Rect, bird: BirdView, where: str) -> 
         meta_bits.append(bird.location)
     if bird.date_taken is not None:
         meta_bits.append(f"taken {bird.date_taken.strftime('%d/%m/%Y')}")
+    if bird.photo_credit:
+        meta_bits.append(f"Photo: {bird.photo_credit}")
     meta = " · ".join(meta_bits)
-
-    credit_h = 6.0
-    credit_rect = Rect(rect.x, rect.bottom - credit_h, rect.w, credit_h)
-    credit_text = f"Photo: {bird.photo_credit}" if bird.photo_credit else ""
 
     cursor = rect.y
     name_op = _text_op(
@@ -392,7 +390,10 @@ def _caption_ops(ctx: LayoutContext, rect: Rect, bird: BirdView, where: str) -> 
     if meta_op:
         ops.append(meta_op)
         cursor += _block_height(meta_op) + cfg.layout.spacing.gap_mm / 2
-    desc_height = max(0.0, credit_rect.y - cursor - cfg.layout.spacing.gap_mm)
+    # The description is limited to two lines at its own size; longer text shrinks to fit two
+    # lines, and if it still cannot, the build fails naming the month.
+    two_lines_mm = 2 * cfg.fonts.description.size_pt * LEADING / 72 * 25.4
+    desc_height = min(max(0.0, rect.bottom - cursor), two_lines_mm)
     desc_op = _text_op(
         Rect(rect.x, cursor, rect.w, desc_height),
         desc,
@@ -405,18 +406,6 @@ def _caption_ops(ctx: LayoutContext, rect: Rect, bird: BirdView, where: str) -> 
     )
     if desc_op:
         ops.append(desc_op)
-    credit_op = _text_op(
-        credit_rect,
-        credit_text,
-        cfg.fonts.credit,
-        reg,
-        "credit",
-        where=f"{where} photo credit",
-        align="right",
-        max_height=credit_h,
-    )
-    if credit_op:
-        ops.append(credit_op)
     return ops
 
 
