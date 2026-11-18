@@ -109,14 +109,15 @@ def _photos_dir(root: Path, year: int) -> Path:
 
 
 def cmd_lock_photos(root: Path, year: int) -> int:
-    from birdcal.data import load_year_data
+    from birdcal.data import load_year_data, photo_files
     from birdcal.photos import LOCK_FILENAME, PhotoError, lock_photos
 
     try:
         photos_dir = _photos_dir(root, year)
         calendar_dir = root / "calendars" / str(year)
+        cfg = load_config(root, year).config
         data = load_year_data(calendar_dir, year)
-        files = [b.photo.file for b in data.birds.birds if b.photo is not None]
+        files = photo_files(data.birds, cfg.pages.cover_photo)
         records = lock_photos(photos_dir, files, calendar_dir / LOCK_FILENAME, year)
     except (ConfigError, PhotoError) as exc:
         print(f"lock failed: {exc}", file=sys.stderr)

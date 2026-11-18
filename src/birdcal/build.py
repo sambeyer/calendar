@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Literal
 
 from birdcal.config import Config, ConfigError, LoadedConfig, load_config
-from birdcal.data import YearData, load_year_data, validate_year_data
+from birdcal.data import PhotoSpec, YearData, load_year_data, photo_files, validate_year_data
 from birdcal.dates import year_grids
 from birdcal.geometry import SheetGeometry, effective_ppi, placement_for
 from birdcal.layout import (
@@ -100,10 +100,15 @@ class Inputs:
 
 
 def _bird_view(
-    cfg: Config, data: YearData, month: int, statuses: Mapping[str, PhotoStatus]
+    cfg: Config,
+    data: YearData,
+    month: int,
+    statuses: Mapping[str, PhotoStatus],
+    cover_file: str | None = None,
 ) -> BirdView:
+    """The month's view; ``cover_file`` replaces the bird's own photo (used for the cover)."""
     bird = next(b for b in data.birds.birds if b.month == month)
-    photo = bird.photo
+    photo = PhotoSpec(file=cover_file) if cover_file else bird.photo
     status = statuses.get(photo.file) if photo else None
     use_real = status is not None and status.usable and status.record is not None
     if status is not None and use_real and status.record is not None and status.path is not None:
@@ -185,7 +190,12 @@ def plan_pages(
     try:
         check_hanger(cfg, ctx.geom)
         if cfg.pages.cover:
-            cover = cover_page(ctx, _bird_view(cfg, data, cfg.pages.cover_month, statuses))
+            cover = cover_page(
+                ctx,
+                _bird_view(
+                    cfg, data, cfg.pages.cover_month, statuses, cover_file=cfg.pages.cover_photo
+                ),
+            )
             plans.append(cover)
             if duplex:
                 if back_photos:
@@ -315,11 +325,19 @@ def prepare(root: Path, year: int, mode: Mode) -> tuple[Inputs, dict[str, PhotoS
 
     photos_dir = Path(cfg.paths.photos_dir).expanduser() if cfg.paths.photos_dir else None
     locks = read_lock(calendar_dir / LOCK_FILENAME)
-    referenced = [b.photo.file for b in data.birds.birds if b.photo is not None]
+    referenced = photo_files(data.birds, cfg.pages.cover_photo)
     try:
         statuses = check_against_lock(photos_dir, referenced, locks)
     except PhotoError as exc:
         raise BuildError(f"photo check failed: {exc}") from exc
+
+    if mode == "print" and cfg.pages.cover and cfg.pages.cover_photo:
+        cover_status = statuses.get(cfg.pages.cover_photo)
+        if cover_status is None or not cover_status.usable:
+            reason = cover_status.problem if cover_status and cover_status.problem else "missing"
+            raise BuildError(
+                f"print refused: cover photo {cfg.pages.cover_photo!r} is not usable ({reason})"
+            )
 
     unusable = sorted(b.month for b in data.birds.birds if not _bird_usable(b, statuses))
     if unusable:

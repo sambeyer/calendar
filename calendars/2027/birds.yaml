@@ -3,61 +3,61 @@
 year: 2027
 birds:
   - month: 1
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Rainbow Lorikeet
+    scientific_name: Trichoglossus moluccanus
+    description: A colourful nectar-feeding parrot with a blue head, green back and orange chest.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: January.jpeg}
   - month: 2
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Australasian Gannet
+    scientific_name: Morus serrator
+    description: A large white seabird with a golden head and black wingtips. It nests in dense colonies on offshore islands and cliffs.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: February.jpeg}
   - month: 3
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Silvereye
+    scientific_name: Zosterops lateralis
+    description: A small olive-green bird with a white eye-ring, found in gardens and bushland across southern Australia.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: March.jpeg}
   - month: 4
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Musk Duck
+    scientific_name: Biziura lobata
+    description: A mottled brown female of this diving duck, which lives on deep wetlands in southern Australia.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: April.jpeg}
   - month: 5
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Striated Fieldwren
+    scientific_name: Calamanthus fuliginosus
+    description: A small, streaked, ground-dwelling bird of heath and shrubland in southern Australia.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: May.jpeg}
   - month: 6
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Crested Pigeon
+    scientific_name: Ocyphaps lophotes
+    description: A grey-brown pigeon with a backward-sweeping crest, common in grasslands and towns across inland Australia.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: June.jpeg}
   - month: 7
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Brolga
+    scientific_name: Antigone rubicunda
+    description: A tall grey crane with a red head, known for its dancing displays on wetlands and floodplains.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: IMG_2058_2.jpeg}
   - month: 8
     common_name: null
     scientific_name: null
@@ -65,15 +65,15 @@ birds:
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: August.jpeg}
   - month: 9
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Swift Parrot
+    scientific_name: Lathamus discolor
+    description: A bright green parrot with a red face. It breeds in Tasmania and flies to the mainland to feed on flowering eucalypts.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: September.jpg}
   - month: 10
     common_name: null
     scientific_name: null
@@ -81,20 +81,20 @@ birds:
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: October.jpeg}
   - month: 11
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Eastern Spinebill
+    scientific_name: Acanthorhynchus tenuirostris
+    description: A honeyeater with a long, curved bill that feeds on nectar from flowering shrubs along the east coast.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: November.jpeg}
   - month: 12
-    common_name: null
-    scientific_name: null
-    description: null
+    common_name: Pink Robin
+    scientific_name: Petroica rodinogaster
+    description: The male has a bright pink breast. This small robin lives in dense forest in south-east Australia and Tasmania.
     location: null
     date_taken: null
     photo_credit: null
-    photo: null
+    photo: {file: December.jpg}

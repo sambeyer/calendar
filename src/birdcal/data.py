@@ -78,6 +78,14 @@ class BirdFile(_Model):
         return self
 
 
+def photo_files(birds: BirdFile, cover_photo: str | None) -> list[str]:
+    """Every photo file the calendar uses: each bird's photo plus the cover photo, if set."""
+    names = {b.photo.file for b in birds.birds if b.photo is not None}
+    if cover_photo:
+        names.add(cover_photo)
+    return sorted(names)
+
+
 # --- holidays and events -----------------------------------------------------
 
 

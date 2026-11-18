@@ -222,6 +222,11 @@ class Labels(_Model):
 class Pages(_Model):
     cover: bool
     cover_month: int = Field(ge=1, le=12, description="whose photo is the cover")
+    cover_photo: str | None = Field(
+        default=None,
+        min_length=1,
+        description="file in photos_dir for the cover; default: the cover_month bird's photo",
+    )
     back: bool
 
 

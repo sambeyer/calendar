@@ -118,6 +118,7 @@ labels:
 pages:
   cover: true
   cover_month: 1  # whose bird photo is on the cover
+  cover_photo: null  # a photo file for the cover instead of cover_month's photo (set per year)
   back: false  # back page lists the year's holidays and events
 
 draft:

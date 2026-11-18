@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from conftest import MakeRepo
+from helpers import birds_yaml
 
 from birdcal.build import BuildError, build_calendar, plan_pages
 from birdcal.config import load_config
@@ -172,8 +173,8 @@ def test_oversized_description_names_month_and_field(make_repo: MakeRepo) -> Non
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(
-        birds.read_text(encoding="utf-8").replace(
-            "  - month: 1\n    common_name: null\n    scientific_name: null\n    description: null",
+        birds_yaml({}).replace(
+            "  - month: 1\n    common_name: Bird 1\n    scientific_name: Avis 1\n    description: A test bird.",
             f"  - month: 1\n    common_name: Test\n    scientific_name: Testus\n    description: {long_text}",
             1,
         ),
@@ -190,8 +191,8 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(
-        birds.read_text(encoding="utf-8").replace(
-            "  - month: 1\n    common_name: null\n    scientific_name: null\n    description: null",
+        birds_yaml({}).replace(
+            "  - month: 1\n    common_name: Bird 1\n    scientific_name: Avis 1\n    description: A test bird.",
             f"  - month: 1\n    common_name: Test\n    scientific_name: Testus\n    description: {text.strip()}",
             1,
         ),
@@ -213,8 +214,8 @@ def test_description_longer_than_two_lines_at_minimum_size_fails(make_repo: Make
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(
-        birds.read_text(encoding="utf-8").replace(
-            "  - month: 1\n    common_name: null\n    scientific_name: null\n    description: null",
+        birds_yaml({}).replace(
+            "  - month: 1\n    common_name: Bird 1\n    scientific_name: Avis 1\n    description: A test bird.",
             f"  - month: 1\n    common_name: Test\n    scientific_name: Testus\n    description: {text.strip()}",
             1,
         ),
