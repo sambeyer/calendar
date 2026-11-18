@@ -113,6 +113,12 @@ class Sides(_Model):
     back_content: Literal["blank", "next_month_photo"] = Field(
         description="what prints on the back of each month sheet"
     )
+    final_back_photo: str | None = Field(
+        default=None,
+        min_length=1,
+        description="file in photos_dir for the back of the last sheet (December); "
+        "default: January's photo",
+    )
 
 
 class Colour(_Model):

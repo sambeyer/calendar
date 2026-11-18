@@ -29,11 +29,27 @@ def _photo_file(plan: PagePlan) -> str | None:
     return images[0].file if images else None
 
 
-def _named_birds(make_repo: MakeRepo) -> Path:
-    root = make_repo(copy_fonts=True)
+def _named_birds(make_repo: MakeRepo, calendar_yaml: str = "year: 2027\n") -> Path:
+    # The year's own calendar.yaml may set a cover or final-back photo; these tests use the
+    # defaults unless they pass their own calendar_yaml.
+    root = make_repo(calendar_yaml=calendar_yaml, copy_fonts=True)
     files = {m: f"IMG_{m:02d}.jpg" for m in range(1, 13)}
     (root / "calendars" / "2027" / "birds.yaml").write_text(birds_yaml(files), encoding="utf-8")
     return root
+
+
+def test_final_back_photo_setting_replaces_januarys_photo_on_last_sheet(
+    make_repo: MakeRepo,
+) -> None:
+    root = _named_birds(
+        make_repo, calendar_yaml="year: 2027\nsides: {final_back_photo: BACK.jpg}\n"
+    )
+    _, plans = _plans(root)
+    december_back = [p for p in plans if p.kind == "next_photo"][-1]
+    assert _photo_file(december_back) == "BACK.jpg"
+    # Every other back still shows the next month's photo.
+    february_back = [p for p in plans if p.kind == "next_photo"][1]
+    assert _photo_file(february_back) == "IMG_02.jpg"
 
 
 def test_sheet_order_is_cover_then_month_and_back_pairs(make_repo: MakeRepo) -> None:

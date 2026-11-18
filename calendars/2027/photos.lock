@@ -14,6 +14,12 @@ photos:
   height: 1822
   colour_profile: null
   orientation: 1
+- file: Back.jpg
+  sha256: ee9967ad60958ffd9b7559db03d6544031138d9ca7a0e215b53ee2666ef22373
+  width: 2409
+  height: 1606
+  colour_profile: Display P3
+  orientation: 1
 - file: Cover.jpeg
   sha256: d6972febf76763e14867e031763d140eefb1c54c6154ae9abb2753a6360020a5
   width: 2576

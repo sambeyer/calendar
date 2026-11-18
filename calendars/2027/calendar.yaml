@@ -4,3 +4,6 @@ year: 2027
 
 pages:
   cover_photo: Cover.jpeg  # galah, shown on the cover instead of a month photo
+
+sides:
+  final_back_photo: Back.jpg  # back of the last sheet (December), instead of January again

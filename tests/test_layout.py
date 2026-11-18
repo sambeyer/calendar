@@ -242,13 +242,22 @@ def test_hanger_in_the_binding_row_is_refused(make_repo: MakeRepo) -> None:
         _plans(root)
 
 
-def test_print_mode_refuses_placeholder_images(repo_root: Path, tmp_path: Path) -> None:
+def _unphotographed(make_repo: MakeRepo) -> Path:
+    # Named birds but no photos: every photo is a placeholder.
+    root = make_repo(copy_fonts=True)
+    (root / "calendars" / "2027" / "birds.yaml").write_text(birds_yaml({}), encoding="utf-8")
+    return root
+
+
+def test_print_mode_refuses_placeholder_images(make_repo: MakeRepo, tmp_path: Path) -> None:
+    root = _unphotographed(make_repo)
     with pytest.raises(BuildError, match="print refused"):
-        build_calendar(repo_root, 2027, "print", out_dir=tmp_path)
+        build_calendar(root, 2027, "print", out_dir=tmp_path)
 
 
-def test_draft_build_writes_cover_twelve_months(repo_root: Path, tmp_path: Path) -> None:
-    result = build_calendar(repo_root, 2027, "draft", out_dir=tmp_path)
+def test_draft_build_writes_cover_twelve_months(make_repo: MakeRepo, tmp_path: Path) -> None:
+    root = _unphotographed(make_repo)
+    result = build_calendar(root, 2027, "draft", out_dir=tmp_path)
     assert result.pages == 26
     assert result.path.exists()
     assert any("placeholder images used" in w for w in result.warnings)

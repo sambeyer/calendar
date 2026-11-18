@@ -56,6 +56,7 @@ sides:
   mode: duplex  # TODO(printer)
   duplex_flip: long_edge  # binding is along the long edge, so the sheet turns over its long edge
   back_content: next_month_photo  # blank | next_month_photo
+  final_back_photo: null  # back of the last sheet (December); null = January's photo (set per year)
 
 colour:
   mode: rgb  # TODO(printer)

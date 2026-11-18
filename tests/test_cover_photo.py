@@ -23,3 +23,8 @@ def test_photo_files_adds_cover_photo_when_set() -> None:
 def test_cover_photo_already_used_by_a_bird_is_listed_once() -> None:
     birds = _birds({1: "jan.jpg"})
     assert photo_files(birds, "jan.jpg") == ["jan.jpg"]
+
+
+def test_final_back_photo_is_listed_with_the_bird_photos() -> None:
+    birds = _birds({1: "jan.jpg"})
+    assert photo_files(birds, None, "back.jpg") == ["back.jpg", "jan.jpg"]

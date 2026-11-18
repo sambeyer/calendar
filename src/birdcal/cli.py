@@ -117,7 +117,7 @@ def cmd_lock_photos(root: Path, year: int) -> int:
         calendar_dir = root / "calendars" / str(year)
         cfg = load_config(root, year).config
         data = load_year_data(calendar_dir, year)
-        files = photo_files(data.birds, cfg.pages.cover_photo)
+        files = photo_files(data.birds, cfg.pages.cover_photo, cfg.sides.final_back_photo)
         records = lock_photos(photos_dir, files, calendar_dir / LOCK_FILENAME, year)
     except (ConfigError, PhotoError) as exc:
         print(f"lock failed: {exc}", file=sys.stderr)
