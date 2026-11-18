@@ -33,14 +33,14 @@ trim_marks:
 binding:
   type: spiral  # TODO(printer)
   edge: top  # TODO(printer)  binding along the long edge, at the top of each page
-  keep_clear_mm: 12  # TODO(printer)  space kept clear at the top of grid pages for the binding holes
+  keep_clear_mm: 17  # TODO(printer)  space kept clear at the top of grid pages for the binding holes
   holes:
     diameter_mm: 4.8  # TODO(printer)
     pattern:
       pitch_mm: 8.47  # TODO(printer)  3:1 spiral, i.e. 3 holes per inch
       holes_per_inch: null
       count: null
-    edge_offset_mm: 6  # TODO(printer)  hole centre distance from the top edge
+    edge_offset_mm: 11  # TODO(printer)  hole centre distance from the top edge; lowered to make room for the hanger above it
     end_margin_mm: 10  # TODO(printer)
     centre: true  # TODO(printer)
 
@@ -48,9 +48,9 @@ hanger:
   enabled: true  # TODO(printer)
   shape: hole  # TODO(printer)
   diameter_mm: 5  # TODO(printer)  template shows about 5 mm
-  x_mm: 148.5  # TODO(printer)  centre of the top edge; the binding hole here is left out
-  offset_mm: 8  # TODO(printer)  about 8 mm down from the top edge, as in the template
-  pages: [cover, months, back, blank]  # TODO(printer)  every sheet, front and back
+  x_mm: 148.5  # TODO(printer)  centre of the top edge, on the photo pages only
+  offset_mm: 4.5  # TODO(printer)  above the binding holes, with a gap between them
+  pages: [cover, photo_back]  # TODO(printer)  photo pages only: the cover and each photo back
 
 sides:
   mode: duplex  # TODO(printer)

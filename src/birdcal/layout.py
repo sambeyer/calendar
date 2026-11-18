@@ -173,9 +173,6 @@ def photo_region(geom: SheetGeometry) -> Rect:
     return geom.bleed_rect
 
 
-HANGER_GAP_MM = 1.0  # minimum clear space between the hanger hole and a binding hole
-
-
 def hole_centres(config: Config, geom: SheetGeometry) -> list[tuple[float, float]]:
     """Binding hole centres in trim mm, along the top or bottom long edge."""
     holes = config.binding.holes
@@ -204,12 +201,6 @@ def hole_centres(config: Config, geom: SheetGeometry) -> list[tuple[float, float
         y = holes.edge_offset_mm
     else:
         y = geom.trim_h - holes.edge_offset_mm
-    # Leave out any hole that would touch the hanger hole, which sits in the same row
-    # at the centre. Every other hole keeps its place in the even pattern.
-    hanger = config.hanger
-    if hanger.enabled:
-        clearance = hanger.diameter_mm / 2 + holes.diameter_mm / 2 + HANGER_GAP_MM
-        positions = [x for x in positions if abs(x - hanger.x_mm) >= clearance]
     return [(x, y) for x in positions]
 
 
@@ -230,19 +221,16 @@ def trim_mark_ops(config: Config, geom: SheetGeometry) -> list[Op]:
     return ops
 
 
-def hanger_centre(
-    config: Config, geom: SheetGeometry, at_bottom: bool = False
-) -> tuple[float, float]:
-    """Hanger hole centre in trim mm. ``at_bottom`` mirrors it to the bottom edge."""
-    y = config.hanger.offset_mm
-    return config.hanger.x_mm, geom.trim_h - y if at_bottom else y
+def hanger_centre(config: Config) -> tuple[float, float]:
+    """Hanger hole centre in trim mm: the top edge of the photo, never mirrored."""
+    return config.hanger.x_mm, config.hanger.offset_mm
 
 
-def _hanger_ops(config: Config, geom: SheetGeometry, kind: str, at_bottom: bool) -> list[Op]:
+def _hanger_ops(config: Config, kind: str) -> list[Op]:
     hanger = config.hanger
     if not hanger.enabled or kind not in hanger.pages:
         return []
-    cx, cy = hanger_centre(config, geom, at_bottom)
+    cx, cy = hanger_centre(config)
     return [Circle(cx, cy, hanger.diameter_mm / 2, "#D00000", 0.5)]
 
 
@@ -264,19 +252,6 @@ def check_hanger(config: Config, geom: SheetGeometry) -> None:
             raise LayoutError(
                 "hanger hole overlaps a binding hole; move hanger.x_mm or hanger.offset_mm"
             )
-
-
-def _hanger_clear_check(config: Config, geom: SheetGeometry, content: Rect, kind: str) -> None:
-    hanger = config.hanger
-    if not hanger.enabled or kind not in hanger.pages:
-        return
-    cx, cy = hanger_centre(config, geom)
-    r = hanger.diameter_mm / 2
-    hole = Rect(cx - r, cy - r, 2 * r, 2 * r)
-    if not geom.trim_rect.contains(hole):
-        raise LayoutError(f"{kind} page: hanger.x_mm/offset_mm put the hanger outside the trim")
-    if hole.overlaps(content):
-        raise LayoutError(f"{kind} page: hanger hole overlaps the content area")
 
 
 # --- text helpers ----------------------------------------------------------------
@@ -629,7 +604,6 @@ def month_page(
             f"{where}: no room for the calendar: {cal.h:.1f} mm available, {needed:.1f} mm needed. "
             "Reduce the caption height or the binding keep-clear depth."
         )
-    _hanger_clear_check(cfg, ctx.geom, content, "months")
 
     ops: list[Op] = []
 
@@ -711,7 +685,6 @@ def back_page(ctx: LayoutContext, entries: Sequence[tuple[dt.date, str, str]]) -
     cfg = ctx.config
     sp = cfg.layout.spacing
     content = content_rect(cfg, ctx.geom)
-    _hanger_clear_check(cfg, ctx.geom, content, "back")
     region = grid_region(cfg, ctx.geom)
     heading_rect = Rect(region.x, region.y, region.w, sp.title_height_mm)
     ops: list[Op] = []
@@ -770,9 +743,9 @@ def _hole_guides(ctx: LayoutContext, at_bottom: bool = False) -> list[Op]:
     ]
 
 
-def binding_and_hanger_ops(ctx: LayoutContext, kind: str, at_bottom: bool = False) -> list[Op]:
+def binding_and_hanger_ops(ctx: LayoutContext, kind: str) -> list[Op]:
     """Physical features the printer punches. Drawn only in proof and draft guides."""
-    return _hanger_ops(ctx.config, ctx.geom, kind, at_bottom)
+    return _hanger_ops(ctx.config, kind)
 
 
 def placeholder_image_op(ctx: LayoutContext, rect: Rect, bird: BirdView) -> ImageOp:

@@ -36,7 +36,7 @@ class _Model(BaseModel):
 Orientation = Literal["portrait", "landscape"]
 BindingType = Literal["spiral", "wire_o", "saddle_stitch", "glue", "none"]
 Edge = Literal["top", "left", "bottom", "middle"]
-PageKind = Literal["cover", "months", "back", "blank"]
+PageKind = Literal["cover", "photo_back", "month", "list", "blank"]
 
 
 class Page(_Model):

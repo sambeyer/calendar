@@ -218,16 +218,16 @@ def plan_pages(
 # Which hanger.pages entry each plan kind counts as. A back sheet belongs to its month.
 _HANGER_KIND: dict[str, str] = {
     "cover": "cover",
-    "month": "months",
-    "next_photo": "months",
-    "back": "back",
+    "month": "month",
+    "next_photo": "photo_back",
+    "back": "list",
     "blank": "blank",
 }
 
 
 def _with_features(ctx: LayoutContext, plan: PagePlan) -> PagePlan:
     """Attach hanger and binding guides (drawn only in guided modes) to a page."""
-    extra = binding_and_hanger_ops(ctx, _HANGER_KIND[plan.kind], at_bottom=plan.binding_at_bottom)
+    extra = binding_and_hanger_ops(ctx, _HANGER_KIND[plan.kind])
     return replace(plan, guides=plan.guides + tuple(extra))
 
 

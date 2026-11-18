@@ -106,7 +106,7 @@ PDF dates (default: 2000-01-01).
 - **Two kinds of page:**
   - **Photo pages** are full bleed: the photo covers the whole page, bleed included. Holes are
     punched through the photo.
-  - **Grid pages** keep `binding.keep_clear_mm` (12 mm) clear at the top for the binding holes, with the month
+  - **Grid pages** keep `binding.keep_clear_mm` (17 mm) clear at the top for the binding holes, with the month
     grid under the strip, with the caption (bird name, description, credit) at the bottom of the
     page and the grid spanning the full width (`layout.caption.placement`).
 - **Order:** the cover, then the cover's back (January's photo), then January's grid. Each grid
@@ -114,14 +114,14 @@ PDF dates (default: 2000-01-01).
   December's grid is followed by January's photo again, since the calendar repeats each year.
   The holiday page and its blank back follow when enabled. Single-sided prints one sheet per
   month.
-- **Binding holes:** along the top edge of the cover and the grid pages, at
-  `binding.holes.edge_offset_mm`, spaced by `pattern`. On the photo backs the photo stays upright,
-  but the holes sit along the bottom edge, so they are at the bottom when the sheet is flipped
-  up. The holes are shown only in draft and proof.
-- **Hanger:** `hanger.pages` lists which sheets get a hanger hole (default: every sheet). It sits
-  at the centre of the top edge, about 8 mm down, as in the template. The binding hole that would
-  clash with it is left out, so the coil or wire has a gap in the middle. The build refuses a
-  hanger that overlaps a binding hole. On the photo backs it sits at the centre of the bottom edge.
+- **Binding holes:** along the top edge of the cover and the grid pages, 11 mm from the edge
+  (`binding.holes.edge_offset_mm`), spaced by `pattern`. Every hole is kept. On the photo backs
+  the photo stays upright, but the holes sit along the bottom edge, so they are at the bottom
+  when the sheet is flipped up. The holes are shown only in draft and proof.
+- **Hanger:** a hole at the centre of the top of each photo page (the cover and every photo
+  back), 4.5 mm down, above the binding row and never in it. `hanger.pages` lists the page types
+  that get one. Grid pages never have one. The build refuses a hanger that overlaps a binding
+  hole.
 - **Duplex:** `sides.mode: duplex` with `duplex_flip: long_edge`. The binding is along the long
   edge, so each sheet turns over along its long edge, like a notepad page turned from the top.
 - Grid options: Sunday (default) or Monday start, ISO week numbers, greyed adjacent days, weekend
