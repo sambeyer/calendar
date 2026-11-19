@@ -115,9 +115,10 @@ PDF dates (default: 2000-01-01).
   page's back is the next month's photo, so February's photo is the back of January's grid.
   December's grid is followed by the back of the calendar: `sides.final_back_photo` if set, otherwise
   January's photo again.
-- **Back text:** the last sheet's back carries the photographers' bios and the donation appeal, on a
-  translucent white panel with dark text. The panel sits in the corner set by `back_text.position`
-  (default top left), inside the safe margin, and clear of the hanger hole and the binding band.
+- **Back text:** the last sheet's back carries the photographers' bios and the donation appeal: white
+  text on a semi-transparent black panel, so the photo shows through. The panel sits in the corner
+  set by `back_text.position` (default bottom right), inside the safe margin, and clear of the
+  hanger hole and the binding band.
   Text shrinks to its minimum size, then the build fails naming the field. Duplex only.
   The holiday page and its blank back follow when enabled. Single-sided prints one sheet per
   month.

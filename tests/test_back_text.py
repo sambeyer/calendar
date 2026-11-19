@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -85,8 +86,11 @@ def test_position_setting_moves_the_panel_to_that_corner(
 ) -> None:
     root = _filled(make_repo)
     config_path = root / "config" / "defaults.yaml"
-    text = config_path.read_text(encoding="utf-8").replace(
-        "position: top_left", f"position: {position}", 1
+    text = re.sub(
+        r"position: (top|bottom)_(left|right)",
+        f"position: {position}",
+        config_path.read_text(encoding="utf-8"),
+        count=1,
     )
     config_path.write_text(text, encoding="utf-8")
     ctx, plans = _plans(root)
@@ -119,13 +123,13 @@ def test_text_sits_inside_the_panel(make_repo: MakeRepo) -> None:
         assert op.rect.y >= panel.y and op.rect.bottom <= panel.bottom + 1e-6
 
 
-def test_text_is_dark_on_a_light_panel(make_repo: MakeRepo) -> None:
+def test_text_is_white_on_a_translucent_black_panel(make_repo: MakeRepo) -> None:
     _, plans = _plans(_filled(make_repo))
     fill = next(op for op in _last_back(plans).ops if isinstance(op, FillRect) and op.alpha < 1)
-    assert fill.colour.upper() == "#FFFFFF"
+    assert fill.colour.upper() == "#000000"
     assert 0 < fill.alpha < 1  # translucent, so the photo still shows through
-    text_colours = {op.colour for op in _last_back(plans).ops if isinstance(op, TextOp)}
-    assert text_colours <= {"#111111", "#222222"}
+    text_colours = {op.colour.upper() for op in _last_back(plans).ops if isinstance(op, TextOp)}
+    assert text_colours == {"#FFFFFF"}
 
 
 def test_too_much_text_names_the_back_text(make_repo: MakeRepo, tmp_path: Path) -> None:

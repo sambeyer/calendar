@@ -111,20 +111,21 @@ fonts:
   holiday_label: {file: fonts/Inter-Medium.ttf, size_pt: 6.5, min_size_pt: 5, colour: "#B00020", align: left}
   event_label: {file: fonts/Inter-Medium.ttf, size_pt: 6.5, min_size_pt: 5, colour: "#1A4F8B", align: left}
   credit: {file: fonts/Inter-Regular.ttf, size_pt: 7, min_size_pt: 6, colour: "#555555", align: right}
-  back_heading: {file: fonts/Inter-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#111111", align: left}
-  back_name: {file: fonts/Inter-SemiBold.ttf, size_pt: 12, min_size_pt: 9, colour: "#111111", align: left}
-  back_body: {file: fonts/Inter-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#222222", align: left}
+  back_heading: {file: fonts/Inter-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#FFFFFF", align: left}
+  back_name: {file: fonts/Inter-SemiBold.ttf, size_pt: 12, min_size_pt: 9, colour: "#FFFFFF", align: left}
+  back_body: {file: fonts/Inter-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
 
 # Text on the back of the last sheet (December's back): photographer bios and a donation appeal.
-# The text sits on a solid panel so it reads over the photo, in a corner away from the subject.
+# The text is white on a semi-transparent black panel, so the photo still shows through. The
+# panel sits in a corner away from the subject.
 back_text:
   enabled: true
-  position: top_left  # top_left | top_right | bottom_left | bottom_right
+  position: bottom_right  # top_left | top_right | bottom_left | bottom_right
   width_mm: 120
   edge_mm: 8  # panel distance from the trim edge
   padding_mm: 5
-  panel_colour: "#FFFFFF"
-  panel_opacity: 0.9  # 1 = solid; lower lets a little of the photo show through
+  panel_colour: "#000000"
+  panel_opacity: 0.6  # 1 = solid black; lower lets more of the photo show through
 
 labels:
   holiday: {prefix: "", suffix: ""}
