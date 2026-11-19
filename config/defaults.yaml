@@ -122,7 +122,7 @@ back_text:
   enabled: true
   position: bottom_right  # top_left | top_right | bottom_left | bottom_right
   width_mm: 120
-  edge_mm: 8  # panel distance from the trim edge
+  edge_mm: 5  # panel distance from the trim edge (the safe margin)
   padding_mm: 5
   panel_colour: "#000000"
   panel_opacity: 0.6  # 1 = solid black; lower lets more of the photo show through

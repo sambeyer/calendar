@@ -67,9 +67,12 @@ def test_panel_is_inside_the_safe_margin_and_clear_of_the_binding(make_repo: Mak
     margin = cfg.safe_margin_mm
     assert panel.x >= trim.x + margin and panel.right <= trim.right - margin
     assert panel.y >= trim.y + margin and panel.bottom <= trim.bottom - margin
-    # The last back is a photo back: its binding holes are at the bottom edge.
+    # The last back is a photo back: its binding holes are at the bottom edge, and the panel
+    # stops above them.
     assert _last_back(plans).binding_at_bottom
-    assert panel.bottom <= trim.bottom - cfg.binding.keep_clear_mm + 1e-9
+    holes = cfg.binding.holes
+    assert holes is not None
+    assert panel.bottom <= trim.bottom - (holes.edge_offset_mm + holes.diameter_mm / 2) + 1e-9
 
 
 @pytest.mark.parametrize(
@@ -170,3 +173,18 @@ def test_draft_build_shows_placeholders_when_text_is_missing(
     texts = [op.lines for op in _last_back(plans).ops if isinstance(op, TextOp)]
     assert any("Bio to come" in line for lines in texts for line in lines)
     assert build_calendar(root, 2027, "draft", out_dir=tmp_path).pages == 26
+
+
+def test_panel_is_drawn_translucent_in_the_pdf(make_repo: MakeRepo, tmp_path: Path) -> None:
+    """The panel's fill must be the 0.6-alpha state, not overridden by a later solid state."""
+    from pypdf import PdfReader
+
+    root = _filled(make_repo)
+    result = build_calendar(root, 2027, "draft", out_dir=tmp_path)
+    page = PdfReader(str(result.path)).pages[-1]
+    content = page.get_contents().get_data().decode("latin-1")
+    ext_gstate = page["/Resources"]["/ExtGState"]
+    # The graphics state in force at the panel's fill is the last "gs" before the fill operator.
+    fill_at = content.index("re f*", content.index("0 0 0 rg"))
+    state_name = content[:fill_at].rsplit("gs", 1)[0].split()[-1]
+    assert float(ext_gstate[state_name].get_object()["/ca"]) == pytest.approx(0.6)

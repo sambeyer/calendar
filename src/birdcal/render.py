@@ -111,9 +111,11 @@ class PdfRenderer:
         c = self.canvas
         if isinstance(op, FillRect):
             if op.alpha < 1:
+                # Colour before alpha: setting the alpha first lets a later state change
+                # override it, which left the panel solid.
                 c.saveState()
-                c.setFillAlpha(op.alpha)
                 c.setFillColor(HexColor(op.colour))
+                c.setFillAlpha(op.alpha)
                 c.rect(*self._rect_path(op.rect), stroke=0, fill=1)
                 c.restoreState()
             else:

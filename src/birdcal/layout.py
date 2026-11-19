@@ -721,6 +721,9 @@ class BackContent:
     appeal: str | None
 
 
+BACK_TEXT_HOLE_GAP_MM = 3.0  # clear space between the binding holes and the back text panel
+
+
 def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: bool) -> list[Op]:
     """Photographer bios and the appeal on a solid panel in one corner of the back page.
 
@@ -735,7 +738,13 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
     edge = max(bt.edge_mm, cfg.safe_margin_mm)
     top, bottom = trim.y + edge, trim.bottom - edge
     if binding_at_bottom:
-        bottom = min(bottom, trim.bottom - keep)
+        # Stop just above the binding holes (their outer edge plus a small gap).
+        holes = cfg.binding.holes
+        if holes is None:
+            bottom = min(bottom, trim.bottom - keep)
+        else:
+            clear = holes.edge_offset_mm + holes.diameter_mm / 2 + BACK_TEXT_HOLE_GAP_MM
+            bottom = min(bottom, trim.bottom - clear)
     else:
         top = max(top, trim.y + keep)
     left, right = trim.x + edge, trim.right - edge
