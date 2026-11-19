@@ -115,6 +115,8 @@ PDF dates (default: 2000-01-01).
   page's back is the next month's photo, so February's photo is the back of January's grid.
   December's grid is followed by the back of the calendar: `sides.final_back_photo` if set, otherwise
   January's photo again.
+- **Back of the calendar:** the last sheet's back is printed upside down, because it is read while the
+  calendar is unopened. Only the photo turns; the text panel stays upright.
 - **Back text:** the last sheet's back carries the photographers' bios and the donation appeal: white
   text on a semi-transparent black panel, so the photo shows through. The panel sits in the corner
   set by `back_text.position` (default bottom right), inside the safe margin, and clear of the
@@ -124,7 +126,7 @@ PDF dates (default: 2000-01-01).
   month.
 - **Binding holes:** along the top edge of the cover and the grid pages, starting 5 mm from the edge
   (outer edge of each hole; `binding.holes.edge_offset_mm` is the centre, 7.4 mm), spaced by `pattern`. Every hole is kept. On the photo backs
-  the photo stays upright, but the holes sit along the bottom edge, so they are at the bottom
+  the photo stays upright (except the back of the calendar, see below), but the holes sit along the bottom edge, so they are at the bottom
   when the sheet is flipped up. The holes are shown only in draft and proof.
 - **Hanger:** a hole at the centre of the top of every photo back (every second page), 4.5 mm
   down, above the binding row and never in it. The cover and grid pages have none.

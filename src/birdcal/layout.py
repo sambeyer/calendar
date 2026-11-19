@@ -89,6 +89,8 @@ class ImageOp:
     placeholder: bool
     label: str
     source_path: str | None = None
+    # Turned 180 degrees about the centre of its rect: the back of the calendar is read unopened.
+    turned: bool = False
 
 
 Op = FillRect | StrokeRect | Line | Circle | TextOp | ImageOp
@@ -642,10 +644,13 @@ def photo_page(
     bird: BirdView,
     kind: Literal["cover", "next_photo"],
     month: int | None,
+    *,
+    turned: bool = False,
 ) -> PagePlan:
     """A full-page photo with nothing else on it."""
     rect = photo_region(ctx.geom)
-    ops: list[Op] = [_photo_op(ctx, rect, bird)]
+    photo = _photo_op(ctx, rect, bird)
+    ops: list[Op] = [replace(photo, turned=True) if turned else photo]
     # Holes are punched through the photo, so no binding band is drawn over it.
     guides: list[Op] = [
         StrokeRect(ctx.geom.bleed_rect, "#1F6FD6", 0.25, (3.0, 2.0)),
@@ -662,9 +667,15 @@ def photo_page(
     )
 
 
-def next_month_page(ctx: LayoutContext, bird: BirdView, next_month: int) -> PagePlan:
-    """The back of a month's grid sheet: the next month's photo, full page."""
-    return photo_page(ctx, bird, "next_photo", next_month)
+def next_month_page(
+    ctx: LayoutContext, bird: BirdView, next_month: int, *, turned: bool = False
+) -> PagePlan:
+    """The back of a month's grid sheet: the next month's photo, full page.
+
+    ``turned`` prints the photo upside down: used for the back of the calendar, which is read
+    while the calendar is unopened.
+    """
+    return photo_page(ctx, bird, "next_photo", next_month, turned=turned)
 
 
 def blank_page(ctx: LayoutContext) -> PagePlan:

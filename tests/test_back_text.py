@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 import pytest
 from conftest import MakeRepo
@@ -182,8 +183,11 @@ def test_panel_is_drawn_translucent_in_the_pdf(make_repo: MakeRepo, tmp_path: Pa
     root = _filled(make_repo)
     result = build_calendar(root, 2027, "draft", out_dir=tmp_path)
     page = PdfReader(str(result.path)).pages[-1]
-    content = page.get_contents().get_data().decode("latin-1")
-    ext_gstate = page["/Resources"]["/ExtGState"]
+    stream = page.get_contents()
+    assert stream is not None
+    content = stream.get_data().decode("latin-1")
+    resources: Any = page["/Resources"]
+    ext_gstate = resources["/ExtGState"]
     # The graphics state in force at the panel's fill is the last "gs" before the fill operator.
     fill_at = content.index("re f*", content.index("0 0 0 rg"))
     state_name = content[:fill_at].rsplit("gs", 1)[0].split()[-1]

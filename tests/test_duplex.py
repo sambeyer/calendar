@@ -147,15 +147,20 @@ def test_only_the_backs_of_sheets_have_the_binding_at_the_bottom(repo_root: Path
         assert plan.binding_at_bottom is expected, f"{plan.kind} {plan.month}"
 
 
-def test_photos_are_never_rotated_in_the_pdf(repo_root: Path, tmp_path: Path) -> None:
-    """Images stay the right way up; only the binding features move."""
+def test_photos_are_only_turned_on_the_back_of_the_calendar(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    """Images stay the right way up except the back of the calendar, printed upside down."""
     import pypdf
 
     from birdcal.build import build_calendar
 
     result = build_calendar(repo_root, 2027, "draft", out_dir=tmp_path)
     reader = pypdf.PdfReader(str(result.path))
-    for page in reader.pages[:4]:
+    for page in reader.pages[:-1]:
         contents = page.get_contents()
         assert contents is not None
         assert b"-1 0 0 -1" not in contents.get_data()
+    last = reader.pages[-1].get_contents()
+    assert last is not None
+    assert b"-1 0 0 -1" in last.get_data()

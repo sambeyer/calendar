@@ -188,6 +188,12 @@ class PdfRenderer:
             path = c.beginPath()
             path.rect(x, y, w, h)
             c.clipPath(path, stroke=0, fill=0)
+        if op.turned:
+            cx = self.conv.x(op.rect.x + op.rect.w / 2)
+            cy = self.conv.y(op.rect.y + op.rect.h / 2)
+            c.translate(cx, cy)
+            c.rotate(180)
+            c.translate(-cx, -cy)
         if op.placeholder or op.source_path is None:
             self._placeholder(op)
         else:

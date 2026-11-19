@@ -217,6 +217,7 @@ def plan_pages(
                         ctx,
                         _bird_view(cfg, data, next_month, statuses, photo_override=override),
                         next_month,
+                        turned=grid.month == 12,
                     )
                 else:
                     back = blank_page(ctx)
