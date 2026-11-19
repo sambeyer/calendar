@@ -78,6 +78,19 @@ class BirdFile(_Model):
         return self
 
 
+class Photographer(_Model):
+    name: str | None = None
+    bio: str | None = Field(default=None, description="a few sentences about the photographer")
+
+
+class BackFile(_Model):
+    """Text for the back of the last sheet. Missing file = empty (placeholders shown)."""
+
+    year: int
+    photographers: list[Photographer] = Field(default_factory=list)
+    appeal: str | None = Field(default=None, description="donation encouragement")
+
+
 def photo_files(birds: BirdFile, *extra: str | None) -> list[str]:
     """Every photo file the calendar uses: each bird's photo plus any extra photos set."""
     names = {b.photo.file for b in birds.birds if b.photo is not None}
@@ -149,6 +162,7 @@ class YearData:
     birds: BirdFile
     holidays: HolidayFile
     events: EventFile
+    back: BackFile
 
 
 def _load(path: Path, model: type[_Model]) -> _Model:
@@ -167,16 +181,24 @@ def _load(path: Path, model: type[_Model]) -> _Model:
 
 def load_year_data(calendar_dir: Path, year: int) -> YearData:
     """Load birds.yaml, holidays.yaml and events.yaml for ``year``."""
+    back = BackFile(year=year)
+    back_path = calendar_dir / "back.yaml"
+    if back_path.exists():
+        loaded = _load(back_path, BackFile)
+        assert isinstance(loaded, BackFile)
+        back = loaded
     data = YearData(
         year=year,
         birds=_load(calendar_dir / "birds.yaml", BirdFile),  # type: ignore[arg-type]
         holidays=_load(calendar_dir / "holidays.yaml", HolidayFile),  # type: ignore[arg-type]
         events=_load(calendar_dir / "events.yaml", EventFile),  # type: ignore[arg-type]
+        back=back,
     )
     for label, file_year in (
         ("birds.yaml", data.birds.year),
         ("holidays.yaml", data.holidays.year),
         ("events.yaml", data.events.year),
+        ("back.yaml", data.back.year),
     ):
         if file_year != year:
             raise ConfigError(f"{calendar_dir / label}: year is {file_year}, expected {year}")
@@ -238,4 +260,20 @@ def validate_year_data(data: YearData) -> list[Issue]:
             issues.append(
                 Issue("warning", where, f"date_taken {bird.date_taken} is outside {year}")
             )
+    back = data.back
+    if len(back.photographers) != 2:
+        issues.append(
+            Issue(
+                "warning",
+                "back.yaml",
+                f"expected 2 photographers, found {len(back.photographers)}",
+            )
+        )
+    for i, person in enumerate(back.photographers, start=1):
+        if not person.name:
+            issues.append(Issue("warning", f"back.yaml photographer {i}", "name is not set"))
+        if not person.bio:
+            issues.append(Issue("warning", f"back.yaml photographer {i}", "bio is not set"))
+    if not back.appeal:
+        issues.append(Issue("warning", "back.yaml", "appeal is not set"))
     return issues

@@ -90,7 +90,13 @@ def test_photo_pages_are_full_bleed(repo_root: Path) -> None:
         if plan.kind in ("cover", "next_photo"):
             photo = next(op for op in plan.ops if isinstance(op, ImageOp))
             assert photo.rect == ctx.geom.bleed_rect  # type: ignore[attr-defined]
-            assert not [op for op in plan.ops if isinstance(op, TextOp)]
+    # Only the back of the calendar (the last sheet) carries text, on its panel.
+    texts = [
+        plan
+        for plan in plans
+        if plan.kind == "next_photo" and any(isinstance(op, TextOp) for op in plan.ops)
+    ]
+    assert texts == [plans[-1]]
 
 
 def test_grid_pages_sit_below_the_binding_strip(repo_root: Path) -> None:

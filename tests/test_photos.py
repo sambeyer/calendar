@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 from conftest import MakeRepo
-from helpers import PROFILE, birds_yaml, save_jpeg
+from helpers import PROFILE, birds_yaml, finish_back, save_jpeg
 from PIL import Image
 
 from birdcal.build import BuildError, build_calendar, photo_findings, plan_pages, prepare
@@ -31,6 +31,7 @@ def photo_repo(make_repo: MakeRepo, tmp_path: Path) -> tuple[Path, Path]:
         save_jpeg(photos / name, 2400 + 40 * m, 1600, quality=80 + m)
     (root / "local.yaml").write_text(f"paths: {{photos_dir: '{photos}'}}\n", encoding="utf-8")
     (root / "calendars" / "2027" / "birds.yaml").write_text(birds_yaml(files), encoding="utf-8")
+    finish_back(root)
     assert main(["--root", str(root), "lock-photos", "2027"]) == 0
     return root, photos
 
@@ -111,6 +112,7 @@ def test_no_photos_dir_gives_a_clear_message_for_print(make_repo: MakeRepo, tmp_
     (root / "calendars" / "2027" / "birds.yaml").write_text(
         birds_yaml({1: "IMG_01.jpg"}), encoding="utf-8"
     )
+    finish_back(root)
     with pytest.raises(BuildError, match="paths.photos_dir is not set"):
         build_calendar(root, 2027, "print", out_dir=tmp_path)
 

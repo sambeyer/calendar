@@ -110,8 +110,15 @@ class PdfRenderer:
     def draw_op(self, op: Op) -> None:
         c = self.canvas
         if isinstance(op, FillRect):
-            c.setFillColor(HexColor(op.colour))
-            c.rect(*self._rect_path(op.rect), stroke=0, fill=1)
+            if op.alpha < 1:
+                c.saveState()
+                c.setFillAlpha(op.alpha)
+                c.setFillColor(HexColor(op.colour))
+                c.rect(*self._rect_path(op.rect), stroke=0, fill=1)
+                c.restoreState()
+            else:
+                c.setFillColor(HexColor(op.colour))
+                c.rect(*self._rect_path(op.rect), stroke=0, fill=1)
         elif isinstance(op, StrokeRect):
             c.saveState()
             c.setStrokeColor(HexColor(op.colour))

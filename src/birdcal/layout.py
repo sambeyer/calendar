@@ -12,7 +12,7 @@ from __future__ import annotations
 import datetime as dt
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Literal
 
 from birdcal.config import Config, FontRole
@@ -34,6 +34,7 @@ class LayoutError(Exception):
 class FillRect:
     rect: Rect
     colour: str
+    alpha: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -710,6 +711,95 @@ def back_page(ctx: LayoutContext, entries: Sequence[tuple[dt.date, str, str]]) -
         ops.append(body)
     guides = _common_guides(ctx)
     return PagePlan(kind="back", month=None, ops=tuple(ops), guides=tuple(guides), content=content)
+
+
+@dataclass(frozen=True)
+class BackContent:
+    """The back page's words: (name, bio) for each photographer, and the donation appeal."""
+
+    photographers: tuple[tuple[str | None, str | None], ...]
+    appeal: str | None
+
+
+def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: bool) -> list[Op]:
+    """Photographer bios and the appeal on a solid panel in one corner of the back page.
+
+    The panel stays inside the safe margin, clear of the binding band and the hanger hole.
+    Text that cannot fit at its minimum size raises LayoutError naming the field.
+    """
+    cfg = ctx.config
+    bt = cfg.back_text
+    reg = ctx.registry
+    trim = ctx.geom.trim_rect
+    keep = cfg.binding.keep_clear_mm
+    edge = max(bt.edge_mm, cfg.safe_margin_mm)
+    top, bottom = trim.y + edge, trim.bottom - edge
+    if binding_at_bottom:
+        bottom = min(bottom, trim.bottom - keep)
+    else:
+        top = max(top, trim.y + keep)
+    left, right = trim.x + edge, trim.right - edge
+    width = min(bt.width_mm, right - left)
+    x0 = left if bt.position.endswith("left") else right - width
+    pad = bt.padding_mm
+    inner_w, inner_h = width - 2 * pad, (bottom - top) - 2 * pad
+    if inner_w <= 0 or inner_h <= 0:
+        raise LayoutError("back text has no room; check back_text and binding.keep_clear_mm")
+
+    items: list[tuple[str, str]] = [("back_heading", "About the photographers")]
+    for i, (name, bio) in enumerate(content.photographers, start=1):
+        items.append(("back_name", name or f"Photographer {i} name to come"))
+        items.append(("back_body", bio or "Bio to come"))
+    items.append(("back_body", content.appeal or "Donation message to come"))
+
+    gap = cfg.layout.spacing.gap_mm
+    texts: list[TextOp] = []
+    total = 0.0
+    for role_key, text in items:
+        op = _text_op(
+            Rect(x0 + pad, 0, inner_w, inner_h),
+            text,
+            getattr(cfg.fonts, role_key),
+            reg,
+            role_key,
+            where=f"back text ({role_key})",
+            align="left",
+            max_height=inner_h,
+        )
+        if op is None:  # pragma: no cover - placeholders are never empty
+            continue
+        texts.append(op)
+        total += _block_height(op) + gap
+    total -= gap
+    if total > inner_h + 1e-9:
+        raise LayoutError(
+            f"back text needs {total:.0f} mm but {inner_h:.0f} mm is available; "
+            "shorten the bios or widen back_text.width_mm"
+        )
+
+    panel_h = total + 2 * pad
+    y0 = top if bt.position.startswith("top") else bottom - panel_h
+    panel = Rect(x0, y0, width, panel_h)
+    if cfg.hanger.enabled:
+        cx, cy = hanger_centre(cfg)
+        margin = cfg.hanger.diameter_mm / 2 + 3
+        if (
+            panel.x < cx + margin
+            and panel.right > cx - margin
+            and panel.y < cy + margin
+            and panel.bottom > cy - margin
+        ):
+            raise LayoutError(
+                "back text panel covers the hanger hole; change back_text.position or width_mm"
+            )
+
+    ops: list[Op] = [FillRect(panel, bt.panel_colour, bt.panel_opacity)]
+    cursor = y0 + pad
+    for op in texts:
+        height = _block_height(op)
+        ops.append(replace(op, rect=Rect(x0 + pad, cursor, inner_w, height)))
+        cursor += height + gap
+    return ops
 
 
 def _month_guides(ctx: LayoutContext, content: Rect) -> list[Op]:

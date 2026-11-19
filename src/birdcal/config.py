@@ -210,6 +210,21 @@ class Fonts(_Model):
     holiday_label: FontRole
     event_label: FontRole
     credit: FontRole
+    back_heading: FontRole
+    back_name: FontRole
+    back_body: FontRole
+
+
+class BackText(_Model):
+    """Photographer bios and a donation appeal on the back of the last sheet."""
+
+    enabled: bool
+    position: Literal["top_left", "top_right", "bottom_left", "bottom_right"]
+    width_mm: float = Field(gt=0)
+    edge_mm: float = Field(ge=0, description="distance from the trim edge to the panel")
+    padding_mm: float = Field(ge=0)
+    panel_colour: str
+    panel_opacity: float = Field(ge=0, le=1, description="1 = solid panel behind the text")
 
 
 class LabelStyle(_Model):
@@ -270,6 +285,7 @@ class Config(_Model):
     photo: PhotoDefaults
     grid: Grid
     fonts: Fonts
+    back_text: BackText
     labels: Labels
     pages: Pages
     draft: Draft

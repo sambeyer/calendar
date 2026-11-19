@@ -1,0 +1,10 @@
+# Text on the back of the calendar (the last sheet's back). Fill in both photographers.
+# Until the names and bios are set, the proof shows "to come" placeholders and print is refused.
+year: 2027
+photographers:
+  - name: null
+    bio: null
+  - name: null
+    bio: null
+# Donation encouragement, shown under the photographers.
+appeal: "This calendar is free to keep and share. Instead of paying for it, please donate to a conservation charity that protects birds and the places they live."

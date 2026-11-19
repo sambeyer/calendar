@@ -24,6 +24,7 @@ from birdcal.data import PhotoSpec, YearData, load_year_data, photo_files, valid
 from birdcal.dates import year_grids
 from birdcal.geometry import SheetGeometry, effective_ppi, placement_for
 from birdcal.layout import (
+    BackContent,
     BirdView,
     DayLabels,
     ImageOp,
@@ -31,6 +32,7 @@ from birdcal.layout import (
     LayoutError,
     PagePlan,
     back_page,
+    back_text_ops,
     binding_and_hanger_ops,
     blank_page,
     check_hanger,
@@ -211,15 +213,18 @@ def plan_pages(
                     next_month = grid.month % 12 + 1
                     # The last sheet's back is not January's photo again unless the year sets it.
                     override = cfg.sides.final_back_photo if grid.month == 12 else None
-                    plans.append(
-                        next_month_page(
-                            ctx,
-                            _bird_view(cfg, data, next_month, statuses, photo_override=override),
-                            next_month,
-                        )
+                    back = next_month_page(
+                        ctx,
+                        _bird_view(cfg, data, next_month, statuses, photo_override=override),
+                        next_month,
                     )
                 else:
-                    plans.append(blank_page(ctx))
+                    back = blank_page(ctx)
+                if grid.month == 12 and cfg.back_text.enabled:
+                    # The back of the calendar: bios and the appeal go on the last sheet's back.
+                    text_ops = back_text_ops(ctx, _back_content(data), back.binding_at_bottom)
+                    back = replace(back, ops=back.ops + tuple(text_ops))
+                plans.append(back)
         if cfg.pages.back:
             plans.append(back_page(ctx, _back_entries(data)))
             if duplex:
@@ -293,6 +298,28 @@ def photo_findings(
     return sorted(findings, key=lambda f: f.month)
 
 
+def _back_content(data: YearData) -> BackContent:
+    """Always two photographer slots, so missing ones show a placeholder in draft and proof."""
+    people = [(p.name, p.bio) for p in data.back.photographers]
+    people += [(None, None)] * max(0, 2 - len(people))
+    return BackContent(photographers=tuple(people), appeal=data.back.appeal)
+
+
+def _unfinished_back_text(data: YearData) -> list[str]:
+    """What the back page still needs before a print file can be made."""
+    missing: list[str] = []
+    if len(data.back.photographers) != 2:
+        missing.append(f"{len(data.back.photographers)} of 2 photographers listed")
+    for i, person in enumerate(data.back.photographers, start=1):
+        if not person.name:
+            missing.append(f"photographer {i} name")
+        if not person.bio:
+            missing.append(f"photographer {i} bio")
+    if not data.back.appeal:
+        missing.append("donation appeal")
+    return missing
+
+
 def _bird_usable(bird: object, statuses: Mapping[str, PhotoStatus]) -> bool:
     """A month is usable when it has a bird name and a verified photo."""
     from birdcal.data import BirdEntry
@@ -334,6 +361,11 @@ def prepare(root: Path, year: int, mode: Mode) -> tuple[Inputs, dict[str, PhotoS
         statuses = check_against_lock(photos_dir, referenced, locks)
     except PhotoError as exc:
         raise BuildError(f"photo check failed: {exc}") from exc
+
+    if mode == "print" and cfg.back_text.enabled and cfg.sides.mode == "duplex":
+        unfinished = _unfinished_back_text(data)
+        if unfinished:
+            raise BuildError("print refused: back page text not finished: " + ", ".join(unfinished))
 
     extra_photos = {
         "cover photo": cfg.pages.cover_photo if cfg.pages.cover else None,

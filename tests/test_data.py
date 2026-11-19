@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from birdcal.config import ConfigError
 from birdcal.data import (
+    BackFile,
     BirdFile,
     Event,
     HolidayFile,
@@ -46,7 +47,9 @@ def _holiday_file(entries: list[dict[str, object]], status: str = "proposed") ->
 
 def _with_holidays(repo_root: Path, holidays: HolidayFile) -> YearData:
     base = _data_2027(repo_root)
-    return YearData(year=2027, birds=base.birds, holidays=holidays, events=base.events)
+    return YearData(
+        year=2027, birds=base.birds, holidays=holidays, events=base.events, back=BackFile(year=2027)
+    )
 
 
 def test_wrong_weekday_is_an_error(repo_root: Path) -> None:

@@ -46,3 +46,19 @@ def birds_yaml(files: dict[int, str], year: int = 2027) -> str:
         else:
             lines += ["    photo: null"]
     return "\n".join(lines) + "\n"
+
+
+FINISHED_BACK = """\
+year: 2027
+photographers:
+  - name: Test Photographer One
+    bio: A test bio for the first photographer.
+  - name: Test Photographer Two
+    bio: A test bio for the second photographer.
+appeal: "A test donation appeal."
+"""
+
+
+def finish_back(root: Path) -> None:
+    """Write a complete back.yaml so print builds in this repo get past the back-text gate."""
+    (root / "calendars" / "2027" / "back.yaml").write_text(FINISHED_BACK, encoding="utf-8")

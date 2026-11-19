@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 from conftest import MakeRepo
-from helpers import MONTHS, PROFILE, birds_yaml, save_jpeg
+from helpers import MONTHS, PROFILE, birds_yaml, finish_back, save_jpeg
 
 from birdcal.build import build_calendar
 from birdcal.cli import main
@@ -51,6 +51,7 @@ def _release_repo(
         ),
         copy_fonts=True,
     )
+    finish_back(root)
     repo = Path(__file__).resolve().parents[1]
     for name in ("pyproject.toml", "uv.lock", "README.md", ".gitignore"):
         shutil.copy(repo / name, root / name)
