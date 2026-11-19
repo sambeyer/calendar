@@ -89,8 +89,6 @@ class ImageOp:
     placeholder: bool
     label: str
     source_path: str | None = None
-    # Turned 180 degrees about the centre of its rect: the back of the calendar is read unopened.
-    turned: bool = False
 
 
 Op = FillRect | StrokeRect | Line | Circle | TextOp | ImageOp
@@ -106,6 +104,9 @@ class PagePlan:
     # The back of a flip-top sheet: the photo is upright, but the binding holes and hanger hole
     # sit along the bottom edge instead of the top.
     binding_at_bottom: bool = False
+    # The page's content (photo, text, panel) is printed upside down, as the back of the calendar
+    # is read unopened. Guides, binding and hanger holes are not turned.
+    turned: bool = False
 
 
 # --- inputs --------------------------------------------------------------------
@@ -649,8 +650,7 @@ def photo_page(
 ) -> PagePlan:
     """A full-page photo with nothing else on it."""
     rect = photo_region(ctx.geom)
-    photo = _photo_op(ctx, rect, bird)
-    ops: list[Op] = [replace(photo, turned=True) if turned else photo]
+    ops: list[Op] = [_photo_op(ctx, rect, bird)]
     # Holes are punched through the photo, so no binding band is drawn over it.
     guides: list[Op] = [
         StrokeRect(ctx.geom.bleed_rect, "#1F6FD6", 0.25, (3.0, 2.0)),
@@ -664,6 +664,7 @@ def photo_page(
         guides=tuple(guides),
         content=rect,
         binding_at_bottom=kind == "next_photo",
+        turned=turned,
     )
 
 
@@ -672,8 +673,8 @@ def next_month_page(
 ) -> PagePlan:
     """The back of a month's grid sheet: the next month's photo, full page.
 
-    ``turned`` prints the photo upside down: used for the back of the calendar, which is read
-    while the calendar is unopened.
+    ``turned`` prints the whole sheet upside down: used for the back of the calendar, which is
+    read while the calendar is unopened.
     """
     return photo_page(ctx, bird, "next_photo", next_month, turned=turned)
 

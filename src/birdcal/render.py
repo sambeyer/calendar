@@ -188,12 +188,6 @@ class PdfRenderer:
             path = c.beginPath()
             path.rect(x, y, w, h)
             c.clipPath(path, stroke=0, fill=0)
-        if op.turned:
-            cx = self.conv.x(op.rect.x + op.rect.w / 2)
-            cy = self.conv.y(op.rect.y + op.rect.h / 2)
-            c.translate(cx, cy)
-            c.rotate(180)
-            c.translate(-cx, -cy)
         if op.placeholder or op.source_path is None:
             self._placeholder(op)
         else:
@@ -244,8 +238,22 @@ class PdfRenderer:
     # pages --------------------------------------------------------------------
     def add_page(self, plan: PagePlan, marks: Sequence[Op], *, guides: bool) -> None:
         self._set_boxes()
-        for op in plan.ops:
-            self.draw_op(op)
+        if plan.turned:
+            # Turn the page's content 180 degrees about the centre of the sheet. Guides, marks,
+            # binding and hanger holes are drawn after this, unturned.
+            c = self.canvas
+            c.saveState()
+            cx = self.conv.x(self.geom.trim_w / 2)
+            cy = self.conv.y(self.geom.trim_h / 2)
+            c.translate(cx, cy)
+            c.rotate(180)
+            c.translate(-cx, -cy)
+            for op in plan.ops:
+                self.draw_op(op)
+            c.restoreState()
+        else:
+            for op in plan.ops:
+                self.draw_op(op)
         if guides:
             for op in plan.guides:
                 self.draw_op(op)

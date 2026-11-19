@@ -192,3 +192,11 @@ def test_panel_is_drawn_translucent_in_the_pdf(make_repo: MakeRepo, tmp_path: Pa
     fill_at = content.index("re f*", content.index("0 0 0 rg"))
     state_name = content[:fill_at].rsplit("gs", 1)[0].split()[-1]
     assert float(ext_gstate[state_name].get_object()["/ca"]) == pytest.approx(0.6)
+
+
+def test_only_the_back_of_the_calendar_is_turned(make_repo: MakeRepo) -> None:
+    _, plans = _plans(_filled(make_repo))
+    turned = [i for i, p in enumerate(plans) if p.turned]
+    assert turned == [len(plans) - 1]
+    # The turned sheet keeps its binding at the bottom, as the other photo backs do.
+    assert plans[-1].binding_at_bottom
