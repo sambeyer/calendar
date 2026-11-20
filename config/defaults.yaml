@@ -130,7 +130,8 @@ back_text:
   position: bottom_right  # top_left | top_right | bottom_left | bottom_right
   width_mm: 120
   edge_mm: 5  # panel distance from the trim edge (the safe margin)
-  padding_mm: 5
+  padding_mm: 4
+  gap_mm: 1.5  # space between the heading, names, bios and appeal
   panel_colour: "#000000"
   panel_opacity: 0.6  # 1 = solid black; lower lets more of the photo show through
 

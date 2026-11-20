@@ -807,7 +807,7 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
         items.append(("back_body", bio or "Bio to come"))
     items.append(("back_body", content.appeal or "Donation message to come"))
 
-    gap = cfg.layout.spacing.gap_mm
+    gap = bt.gap_mm
     texts: list[TextOp] = []
     total = 0.0
     for role_key, text in items:

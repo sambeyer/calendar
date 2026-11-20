@@ -240,6 +240,7 @@ class BackText(_Model):
     width_mm: float = Field(gt=0)
     edge_mm: float = Field(ge=0, description="distance from the trim edge to the panel")
     padding_mm: float = Field(ge=0)
+    gap_mm: float = Field(ge=0, description="space between the heading, names, bios and appeal")
     panel_colour: str
     panel_opacity: float = Field(ge=0, le=1, description="1 = solid panel behind the text")
 
