@@ -2,9 +2,17 @@
 # Until the names and bios are set, the proof shows "to come" placeholders and print is refused.
 year: 2027
 photographers:
-  - name: null
-    bio: null
-  - name: null
-    bio: null
+  - name: Jolon D'Amore
+    bio: |
+      Jolon D'Amore was born in Mooroopna but was forced to move to
+      Melbourne when poilce requested to question him about a
+      stoken KFC bucket. Now he takes photos of birds.
+  - name: Sam Beyer
+    bio: |
+      Sam Beyer was born in the Netherlands but was forced
+      to move to Australia when competitive seal clubbing was
+      outlawed. Now he takes photos of birds.
 # Donation encouragement, shown under the photographers.
-appeal: "This calendar is free to keep and share. Instead of paying for it, please donate to a conservation charity that protects birds and the places they live."
+appeal: |
+  If you feel the desire to pay us for this calendar, please
+  donate the $15 to Bird Life Australia instead.

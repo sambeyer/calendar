@@ -2,6 +2,8 @@
 build/
 # machine-specific overrides (paths to photos etc.)
 local.yaml
+# macOS
+.DS_Store
 # python
 .venv/
 __pycache__/

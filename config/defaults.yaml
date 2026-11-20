@@ -14,7 +14,7 @@ printer_spec_confirmed: false  # TODO(printer)
 
 paths:
   # Machine-specific: set in local.yaml (git-ignored), e.g. photos_dir: /Volumes/Photos/birds
-  photos_dir: null
+  photos_dir: ~/code/calendar/photos/2027
 
 page:
   width_mm: 297  # TODO(printer)  A4-ish landscape placeholder (exact size TBD)

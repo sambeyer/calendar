@@ -2,87 +2,87 @@
 # Each photo's SHA-256, pixel size, colour profile and EXIF orientation.
 year: 2027
 photos:
-- file: April.jpeg
-  sha256: 2f254ce2186dfdac7647e10553064b0ea2f7d4e6f2bd9c5eba37aad0c1e89811
-  width: 2576
-  height: 1822
-  colour_profile: null
+- file: 1P2A6049.jpg
+  sha256: af822db7462a1ebb8680339b5a029edc7d65e9d93c3339638bd15cbd14991006
+  width: 4796
+  height: 3392
+  colour_profile: sRGB IEC61966-2.1
   orientation: 1
-- file: August.jpeg
-  sha256: 66986937c9fc0edfa9d2a61d2e257f9f218b015550a86d35a7e929a67b866274
-  width: 2576
-  height: 1822
-  colour_profile: null
+- file: IMG_1096.jpg
+  sha256: fe322a7a3325196f38bd2e9b38d4846d3dae23f693d112d84535cc9e1f835ef8
+  width: 3263
+  height: 2308
+  colour_profile: sRGB IEC61966-2.1
   orientation: 1
-- file: Back.jpg
-  sha256: ee9967ad60958ffd9b7559db03d6544031138d9ca7a0e215b53ee2666ef22373
-  width: 2409
-  height: 1606
-  colour_profile: Display P3
+- file: IMG_1542.jpg
+  sha256: 451e72fec4250acdbb2b48f6dffe3e7a864ca16ac03afcd7556ada93fdd6604c
+  width: 3664
+  height: 2591
+  colour_profile: sRGB IEC61966-2.1
   orientation: 1
-- file: Cover.jpeg
-  sha256: d6972febf76763e14867e031763d140eefb1c54c6154ae9abb2753a6360020a5
-  width: 2576
-  height: 1822
-  colour_profile: null
+- file: IMG_1856-Enhanced-NR.jpg
+  sha256: e5a7a4314471c12769f1b7b83e5a5344f380947e5192514afc2888710d735229
+  width: 4550
+  height: 3218
+  colour_profile: sRGB IEC61966-2.1
   orientation: 1
-- file: December.jpg
-  sha256: fd34ffbef5a153d15c64a24df1089101d9ff956f768c8b086eb6aa662679fc7d
+- file: IMG_2058.jpg
+  sha256: ed063346fd9aa0f89afb891198f527fbe444d674c563ba4aa4949d2f9f7676fe
+  width: 5164
+  height: 3652
+  colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: IMG_2216.jpg
+  sha256: 4d1fd0ab20e8b275a1590de0897132494ad1ecc2cbcd952f5e535ba467219b5d
+  width: 5437
+  height: 3845
+  colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: IMG_4385.jpg
+  sha256: 1fa76ae4dfcaa0a0cbd7a7c86b6f8a06b1c77cbc6c5c3b94f5bbaea542cafdbc
+  width: 2038
+  height: 1441
+  colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: IMG_8320.jpg
+  sha256: ce6beadb22789de9529dbf6506862666e72aec0c0db308d69610e6afe97e6799
   width: 2558
   height: 1809
   colour_profile: sRGB IEC61966-2.1
   orientation: 1
-- file: February.jpeg
-  sha256: 90418b722fb2a32b21e9ce9b157f5fdfd990b9fe2003bb188568d3c040101ab6
-  width: 2380
-  height: 1683
-  colour_profile: null
-  orientation: 1
-- file: IMG_2058_2.jpeg
-  sha256: f023349c98f6781f3324cec045726b3431286a2fe97ba1f24d59d5ea7b640940
-  width: 2576
-  height: 1822
-  colour_profile: null
-  orientation: 1
-- file: January.jpeg
-  sha256: 6bff22bad51f657a9d0332318bfb6dc3b191af983c4db5a3d95e2f6561ddb43e
-  width: 2275
-  height: 1609
-  colour_profile: null
-  orientation: 1
-- file: June.jpeg
-  sha256: 82c6328af16c28338b8fc1d873e9fc0647d8720286398f77233854e972cc0e8e
-  width: 2576
-  height: 1822
-  colour_profile: null
-  orientation: 1
-- file: March.jpeg
-  sha256: 1237c53ba1a007c7dad24fca226f969c68687289bb64b6aa9f15de25631cd2d2
-  width: 2330
-  height: 1648
-  colour_profile: null
-  orientation: 1
-- file: May.jpeg
-  sha256: 3a6ba12c882cffb507dd93f599f8560a46d3170ed68b643773da369f5b65d811
-  width: 2209
-  height: 1562
-  colour_profile: null
-  orientation: 1
-- file: November.jpeg
-  sha256: dce8fcf2cf21ec1353c5f1c8b39cc50c34d75ac2c5440fa0a02e85c38ef31531
-  width: 2576
-  height: 1822
-  colour_profile: null
-  orientation: 1
-- file: October.jpeg
-  sha256: dd34ece6156088b94e139a82d271cf2638205d509a8fc004eb5b633f89bdc1ae
-  width: 2576
-  height: 1821
-  colour_profile: null
-  orientation: 1
-- file: September.jpg
-  sha256: ebe708176c3fc4f6a277d174af4875a9e2ee92cd0de256939eff29f101440a58
-  width: 2038
-  height: 1441
+- file: IMG_8848-Enhanced-NR.jpg
+  sha256: de8239c4bf588c1c77dfb50e1a6a5725485f44bbd4019aab94f7f690a9de817a
+  width: 4660
+  height: 3296
   colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: IMG_9801.jpg
+  sha256: 03d2e6a6ee6726780bd677190058cae80f98c5a9e31dd3adbb813cdecaf2b03f
+  width: 4761
+  height: 3367
+  colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: _DSC5792.jpg
+  sha256: 554dcb79d8652d5f25a4c5fbf0f56f2857680730797b9b6ca1e6262630ef6812
+  width: 5443
+  height: 3849
+  colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: _DSC6650.jpg
+  sha256: 96503398782765d6861081a7e7e9e694a73b3d4f8d8e7b11b3fe080c705e4a64
+  width: 6606
+  height: 4672
+  colour_profile: null
+  orientation: 1
+- file: _DSC6819.jpg
+  sha256: 4db0f62686cd9774f39a5b1c9c46f7eb7205c73b0e7a7a9bad7d8013390c49fa
+  width: 4571
+  height: 3233
+  colour_profile: sRGB IEC61966-2.1
+  orientation: 1
+- file: _DSC6969 with text.jpg
+  sha256: b93bd476c9f7056ad6b11eea2f1d81325ae9c323e9cd284d435fd453552a73a8
+  width: 3348
+  height: 2368
+  colour_profile: null
   orientation: 1

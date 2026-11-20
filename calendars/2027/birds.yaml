@@ -9,7 +9,7 @@ birds:
     location: Jolon's old house, Mulgrave
     date_taken: null
     photo_credit: null
-    photo: {file: January.jpeg}
+    photo: {file: IMG_1856-Enhanced-NR.jpg}
   - month: 2
     common_name: Australian Gannet
     scientific_name: Gannetus Planetus
@@ -17,7 +17,7 @@ birds:
     location: Gannet colony, Point Danger
     date_taken: null
     photo_credit: null
-    photo: {file: February.jpeg}
+    photo: {file: IMG_9801.jpg}
   - month: 3
     common_name: Striated Grasswren
     scientific_name: Mister Grassus Wreni
@@ -25,7 +25,7 @@ birds:
     location: Hattah-Kulkyne National Park
     date_taken: null
     photo_credit: null
-    photo: {file: May.jpeg}
+    photo: {file: _DSC6819.jpg}
   - month: 4
     common_name: Freckled Duck
     scientific_name: Duckus Duckus Goosus
@@ -33,7 +33,7 @@ birds:
     location: Braeside Park
     date_taken: null
     photo_credit: null
-    photo: {file: April.jpeg}
+    photo: {file: IMG_2216.jpg}
   - month: 5
     common_name: Silvereye
     scientific_name: Ag Oculus
@@ -41,7 +41,7 @@ birds:
     location: Howqua near Frys Flat
     date_taken: null
     photo_credit: null
-    photo: {file: March.jpeg}
+    photo: {file: IMG_8848-Enhanced-NR.jpg}
   - month: 6
     common_name: Crested Pigeon
     scientific_name: Pigeoerectus
@@ -49,7 +49,7 @@ birds:
     location: Just out of Echuca
     date_taken: null
     photo_credit: null
-    photo: {file: June.jpeg}
+    photo: {file: 1P2A6049.jpg}
   - month: 7
     common_name: Red-capped Robin (female)
     scientific_name: Rossa Robina
@@ -57,7 +57,7 @@ birds:
     location: Longwood fire ash, after the Longwood fires
     date_taken: null
     photo_credit: null
-    photo: {file: August.jpeg}
+    photo: {file: IMG_1542.jpg}
   - month: 8
     common_name: Brolga
     scientific_name: Nota Flamingus
@@ -65,7 +65,7 @@ birds:
     location: Western Treatment Plant (the poo farm), Werribee
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_2058_2.jpeg}
+    photo: {file: IMG_2058.jpg}
   - month: 9
     common_name: Swift Parrot
     scientific_name: Lathamus discolor
@@ -73,15 +73,15 @@ birds:
     location: Plenty Gorge Park
     date_taken: null
     photo_credit: null
-    photo: {file: September.jpg}
+    photo: {file: IMG_4385.jpg}
   - month: 10
     common_name: Grey Teal
-    scientific_name: null
+    scientific_name: We think
     description: A small grey-brown duck of inland and coastal wetlands.
     location: Gemmills Swamp, Mooroopna
     date_taken: null
     photo_credit: null
-    photo: {file: October.jpeg}
+    photo: {file: _DSC5792.jpg}
   - month: 11
     common_name: Eastern Spinebill
     scientific_name: Lumbar williami
@@ -89,7 +89,7 @@ birds:
     location: Grampians National Park
     date_taken: null
     photo_credit: null
-    photo: {file: November.jpeg}
+    photo: {file: IMG_1096.jpg}
   - month: 12
     common_name: Pink Robin
     scientific_name: Pinky Dinky
@@ -97,4 +97,4 @@ birds:
     location: Mt Donna Buang
     date_taken: null
     photo_credit: null
-    photo: {file: December.jpg}
+    photo: {file: IMG_8320.jpg}

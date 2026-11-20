@@ -209,6 +209,13 @@ def check_against_lock(
     return statuses
 
 
+# pypdf decodes every image it lists (page.images) and refuses any whose decoded buffer
+# exceeds its default 75 MB cap. Our source photos are full-page, and a 28-megapixel RGB
+# photo already decodes to about 84 MB, so the cap is raised for this read only. Nothing
+# is re-encoded: the hashes are taken from the stored JPEG bytes.
+_MAX_IMAGE_BUFFER_BYTES = 256_000_000
+
+
 def embedded_jpeg_hashes(pdf_path: Path) -> Counter[str]:
     """SHA-256 of every DCTDecode image stream in the PDF, as a multiset.
 
@@ -216,6 +223,11 @@ def embedded_jpeg_hashes(pdf_path: Path) -> Counter[str]:
     was embedded unchanged. Any other image filter is a PhotoError: the pipeline should
     never produce one.
     """
+    with pypdf.apply_configuration(image_maximum_buffer_size=_MAX_IMAGE_BUFFER_BYTES):
+        return _embedded_jpeg_hashes(pdf_path)
+
+
+def _embedded_jpeg_hashes(pdf_path: Path) -> Counter[str]:
     hashes: Counter[str] = Counter()
     reader = pypdf.PdfReader(str(pdf_path))
     for page in reader.pages:
