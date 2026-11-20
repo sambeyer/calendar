@@ -115,7 +115,7 @@ fonts:
   bird_name: {file: fonts/Lora-SemiBold.ttf, size_pt: 20, min_size_pt: 14, colour: "#111111", align: left}
   scientific_name: {file: fonts/Lora-Italic.ttf, size_pt: 11, min_size_pt: 8, colour: "#444444", align: left}
   description: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 7, colour: "#222222", align: left}
-  holiday_label: {file: fonts/SourceSans3-SemiBold.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#9B0019", align: right}
+  holiday_label: {file: fonts/SourceSans3-SemiBold.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#000000", align: right}
   event_label: {file: fonts/SourceSans3-Medium.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#1A4F8B", align: right}
   credit: {file: fonts/SourceSans3-Regular.ttf, size_pt: 7, min_size_pt: 6, colour: "#555555", align: right}
   back_heading: {file: fonts/Lora-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#FFFFFF", align: left}
