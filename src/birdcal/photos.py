@@ -169,6 +169,8 @@ class PhotoStatus:
     record: LockRecord | None
     path: Path | None
     problem: str | None  # None when usable
+    # Set only under --ignore-lock: why the file was used without matching the lock.
+    lock_note: str | None = None
 
     @property
     def usable(self) -> bool:
@@ -176,13 +178,19 @@ class PhotoStatus:
 
 
 def check_against_lock(
-    photos_dir: Path | None, files: Iterable[str], locks: Mapping[str, LockRecord]
+    photos_dir: Path | None,
+    files: Iterable[str],
+    locks: Mapping[str, LockRecord],
+    *,
+    ignore_lock: bool = False,
 ) -> dict[str, PhotoStatus]:
     """Verify each referenced photo against the lock.
 
     A file that is absent from disk, or has no lock entry, is reported as a problem (not an
     error) so the caller can decide: draft and proof fall back to a placeholder, print refuses.
-    A file that is present but whose hash differs from the lock is always an error.
+    A file that is present but whose hash differs from the lock is always an error, unless
+    ``ignore_lock`` is set: then the file on disk is used, its own hash and size are recorded,
+    and ``lock_note`` says why it was not verified.
     """
     statuses: dict[str, PhotoStatus] = {}
     for name in sorted(set(files)):
@@ -196,6 +204,23 @@ def check_against_lock(
         if not path.is_file():
             statuses[name] = PhotoStatus(name, record, None, f"not found in {photos_dir}")
             continue
+        if ignore_lock:
+            info = inspect_jpeg(path)
+            on_disk = LockRecord(
+                file=name,
+                sha256=info.sha256,
+                width=info.width,
+                height=info.height,
+                colour_profile=info.colour_profile,
+                orientation=info.orientation,
+            )
+            note: str | None = None
+            if record is None:
+                note = "not in photos.lock"
+            elif record.sha256 != on_disk.sha256:
+                note = "differs from photos.lock"
+            statuses[name] = PhotoStatus(name, on_disk, path, None, lock_note=note)
+            continue
         if record is None:
             raise PhotoError(f"{name}: not in photos.lock; run `birdcal lock-photos <year>`")
         actual = sha256_file(path)
@@ -207,6 +232,26 @@ def check_against_lock(
             )
         statuses[name] = PhotoStatus(name, record, path, None)
     return statuses
+
+
+def write_resampled_jpeg(src: Path, dst: Path, *, scale: float, quality: int) -> tuple[int, int]:
+    """Write a smaller, lower-quality baseline JPEG copy of ``src`` to ``dst``.
+
+    ``scale`` is the linear size factor (at most 1). The colour profile is kept. Returns the
+    pixel size of the copy.
+    """
+    with Image.open(src) as img:
+        img.load()
+        icc = img.info.get("icc_profile")
+        out: Image.Image = img
+        if scale < 1:
+            size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
+            out = img.resize(size, Image.Resampling.LANCZOS)
+        kwargs: dict[str, Any] = {"quality": quality, "optimize": True}
+        if icc:
+            kwargs["icc_profile"] = icc
+        out.save(dst, "JPEG", **kwargs)
+        return out.width, out.height
 
 
 # pypdf decodes every image it lists (page.images) and refuses any whose decoded buffer

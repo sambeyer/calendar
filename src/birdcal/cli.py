@@ -78,7 +78,9 @@ def cmd_validate(root: Path, year: int) -> int:
     return EXIT_VALIDATION if errors else EXIT_OK
 
 
-def cmd_build(root: Path, year: int, mode: str) -> int:
+def cmd_build(
+    root: Path, year: int, mode: str, *, ignore_lock: bool = False, low_quality: bool = False
+) -> int:
     from birdcal.build import BuildError, build_calendar
 
     try:
@@ -89,13 +91,21 @@ def cmd_build(root: Path, year: int, mode: str) -> int:
     report_unconfirmed(loaded)
     print()
     try:
-        result = build_calendar(root, year, mode)  # type: ignore[arg-type]
+        result = build_calendar(
+            root,
+            year,
+            mode,  # type: ignore[arg-type]
+            ignore_lock=ignore_lock,
+            low_quality=low_quality,
+        )
     except BuildError as exc:
         print(f"build failed: {exc}", file=sys.stderr)
         return EXIT_VALIDATION
     for warning in result.warnings:
         print(warning if warning.startswith(("WARNING", "ERROR")) else f"WARNING {warning}")
     print(f"wrote {result.path} ({result.pages} pages, mode={result.mode})")
+    if result.not_for_printing:
+        print(f"NOT FOR PRINTING: {result.path.name} must not be sent to the printer")
     return EXIT_OK
 
 
@@ -240,6 +250,16 @@ def build_parser() -> argparse.ArgumentParser:
     build = sub.add_parser("build", help="build the calendar PDF")
     build.add_argument("year", type=int)
     build.add_argument("--mode", choices=["draft", "proof", "print"], default="draft")
+    build.add_argument(
+        "--ignore-lock",
+        action="store_true",
+        help="use photos even if they do not match photos.lock (output is not for printing)",
+    )
+    build.add_argument(
+        "--low-quality",
+        action="store_true",
+        help="embed resampled, lower-quality photos for a smaller PDF (not for printing)",
+    )
     return parser
 
 
@@ -253,7 +273,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "validate":
         return cmd_validate(root, args.year)
     if args.command == "build":
-        return cmd_build(root, args.year, args.mode)
+        return cmd_build(
+            root,
+            args.year,
+            args.mode,
+            ignore_lock=args.ignore_lock,
+            low_quality=args.low_quality,
+        )
     if args.command == "lock-photos":
         return cmd_lock_photos(root, args.year)
     if args.command == "check-photos":

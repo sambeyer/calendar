@@ -6,13 +6,20 @@ Modes:
     print  guides off; every month needs a verified photo, or the build is refused
 
 Every build checks the photos on disk against ``photos.lock``. A changed or unlocked file
-is always an error. After rendering, the PDF's embedded JPEG streams are compared with the
-source hashes; any difference fails the build and removes the output.
+is always an error, unless ``ignore_lock`` is set. After rendering, the PDF's embedded JPEG
+streams are compared with the hashes of the photos actually embedded; any difference fails the
+build and removes the output.
+
+Two options produce files that must not be printed. Their names say so, so they cannot be
+mistaken for a print file:
+    --ignore-lock   photos are used even though they do not match photos.lock
+    --low-quality   photos are resampled and re-encoded at a lower resolution
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import tempfile
 from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
@@ -49,6 +56,8 @@ from birdcal.photos import (
     check_against_lock,
     embedded_jpeg_hashes,
     read_lock,
+    sha256_file,
+    write_resampled_jpeg,
 )
 from birdcal.render import PdfRenderer
 from birdcal.text import register_fonts
@@ -86,6 +95,29 @@ class BuildResult:
     warnings: list[str] = field(default_factory=list)
     findings: list[PhotoFinding] = field(default_factory=list)
     photo_hashes: list[str] = field(default_factory=list)
+    ignore_lock: bool = False
+    low_quality: bool = False
+
+    @property
+    def not_for_printing(self) -> bool:
+        return self.ignore_lock or self.low_quality
+
+
+def output_name(
+    year: int, mode: Mode, *, ignore_lock: bool = False, low_quality: bool = False
+) -> str:
+    """File name for a build. Each option that makes the file unsuitable for printing adds a
+    suffix, so the flags are visible wherever the file goes."""
+    suffix = ("-ignore-lock" if ignore_lock else "") + ("-low-quality" if low_quality else "")
+    return f"calendar-{year}-{mode}{suffix}.pdf"
+
+
+def _title(year: int, mode: Mode, ignore_lock: bool, low_quality: bool) -> str:
+    flags = [
+        name for name, on in (("ignore-lock", ignore_lock), ("low-quality", low_quality)) if on
+    ]
+    extra = f", NOT FOR PRINTING: {', '.join(flags)}" if flags else ""
+    return f"{year} bird calendar ({mode}{extra})"
 
 
 @dataclass(frozen=True)
@@ -332,7 +364,9 @@ def _bird_usable(bird: object, statuses: Mapping[str, PhotoStatus]) -> bool:
     return status is not None and status.usable
 
 
-def prepare(root: Path, year: int, mode: Mode) -> tuple[Inputs, dict[str, PhotoStatus]]:
+def prepare(
+    root: Path, year: int, mode: Mode, *, ignore_lock: bool = False
+) -> tuple[Inputs, dict[str, PhotoStatus]]:
     """Load everything, verify photos against the lock, and apply the per-mode rules."""
     try:
         loaded = load_config(root, year)
@@ -359,9 +393,14 @@ def prepare(root: Path, year: int, mode: Mode) -> tuple[Inputs, dict[str, PhotoS
     locks = read_lock(calendar_dir / LOCK_FILENAME)
     referenced = photo_files(data.birds, cfg.pages.cover_photo, cfg.sides.final_back_photo)
     try:
-        statuses = check_against_lock(photos_dir, referenced, locks)
+        statuses = check_against_lock(photos_dir, referenced, locks, ignore_lock=ignore_lock)
     except PhotoError as exc:
         raise BuildError(f"photo check failed: {exc}") from exc
+    for file_name, photo in sorted(statuses.items()):
+        if ignore_lock and photo.lock_note:
+            warnings.append(
+                f"photo {file_name}: {photo.lock_note}; used because --ignore-lock is set"
+            )
 
     if mode == "print" and cfg.back_text.enabled and cfg.sides.mode == "duplex":
         unfinished = _unfinished_back_text(data)
@@ -401,48 +440,113 @@ def prepare(root: Path, year: int, mode: Mode) -> tuple[Inputs, dict[str, PhotoS
     return inputs, statuses
 
 
-def build_calendar(root: Path, year: int, mode: Mode, out_dir: Path | None = None) -> BuildResult:
-    """Build the calendar PDF for ``year`` in ``mode``."""
-    inputs, statuses = prepare(root, year, mode)
-    cfg = inputs.config
-    ctx, plans = plan_pages(root, cfg, inputs.data, statuses)
-    findings = photo_findings(plans, cfg, inputs.locks)
-    warnings = list(inputs.warnings)
-    for f in findings:
-        warnings += [f"month {f.month:02d} {f.file}: {w}" for w in f.warnings]
+def _low_quality_statuses(
+    root: Path,
+    cfg: Config,
+    data: YearData,
+    statuses: Mapping[str, PhotoStatus],
+    scratch: Path,
+) -> dict[str, PhotoStatus]:
+    """Point each placed photo at a resampled copy in ``scratch``.
 
-    used_hashes = [
-        inputs.locks[op.file].sha256
-        for plan in plans
-        for op in plan.ops
-        if isinstance(op, ImageOp)
-        and not op.placeholder
-        and op.file is not None
-        and op.file in inputs.locks
-    ]
-    guides = mode in GUIDED_MODES
+    Each photo is scaled so its effective PPI is at most ``photo.low_quality.ppi`` in every
+    place it is shown. The copy's own size and hash replace the lock's, so the lossless check
+    compares the PDF with what was actually embedded.
+    """
+    _, plans = plan_pages(root, cfg, data, statuses)
+    scale: dict[str, float] = {}
+    for plan in plans:
+        for op in plan.ops:
+            if not isinstance(op, ImageOp) or op.placeholder or op.file is None:
+                continue
+            ppi = effective_ppi(op.px_w, op.px_h, op.rect, op.fit)
+            needed = min(1.0, cfg.photo.low_quality.ppi / ppi)
+            scale[op.file] = max(scale.get(op.file, 0.0), needed)
+    result = dict(statuses)
+    for name, factor in sorted(scale.items()):
+        status = statuses[name]
+        if status.path is None or status.record is None:  # pragma: no cover - usable only
+            continue
+        dst = scratch / name
+        width, height = write_resampled_jpeg(
+            status.path, dst, scale=factor, quality=cfg.photo.low_quality.jpeg_quality
+        )
+        copy = replace(status.record, width=width, height=height, sha256=sha256_file(dst))
+        result[name] = replace(status, record=copy, path=dst)
+    return result
+
+
+def build_calendar(
+    root: Path,
+    year: int,
+    mode: Mode,
+    out_dir: Path | None = None,
+    *,
+    ignore_lock: bool = False,
+    low_quality: bool = False,
+) -> BuildResult:
+    """Build the calendar PDF for ``year`` in ``mode``.
+
+    ``ignore_lock`` uses photos that do not match photos.lock. ``low_quality`` embeds resampled
+    copies to make a smaller PDF. Either makes the file unsuitable for printing; the file name
+    and title say so.
+    """
+    inputs, statuses = prepare(root, year, mode, ignore_lock=ignore_lock)
+    cfg = inputs.config
     out_root = out_dir or (root / "build" / str(year))
     out_root.mkdir(parents=True, exist_ok=True)
-    path = out_root / f"calendar-{year}-{mode}.pdf"
-    renderer = PdfRenderer(
-        path, ctx.geom, ctx.registry["credit"], title=f"{year} bird calendar ({mode})"
-    )
-    marks = trim_mark_ops(cfg, ctx.geom)
-    for plan in plans:
-        renderer.add_page(plan, marks, guides=guides)
-    renderer.save()
+    path = out_root / output_name(year, mode, ignore_lock=ignore_lock, low_quality=low_quality)
+    with tempfile.TemporaryDirectory(prefix="birdcal-") as scratch:
+        if low_quality:
+            statuses = _low_quality_statuses(root, cfg, inputs.data, statuses, Path(scratch))
+        ctx, plans = plan_pages(root, cfg, inputs.data, statuses)
+        records = {name: s.record for name, s in statuses.items() if s.record is not None}
+        findings = photo_findings(plans, cfg, records)
+        warnings = list(inputs.warnings)
+        if low_quality:
+            warnings.append(
+                f"NOT FOR PRINTING: --low-quality photos resampled to "
+                f"{cfg.photo.low_quality.ppi:.0f} ppi, JPEG quality {cfg.photo.low_quality.jpeg_quality}"
+            )
+        if ignore_lock:
+            warnings.append(
+                "NOT FOR PRINTING: --ignore-lock used photos that differ from photos.lock"
+            )
+        for f in findings:
+            warnings += [f"month {f.month:02d} {f.file}: {w}" for w in f.warnings]
 
-    try:
-        embedded = embedded_jpeg_hashes(path)
-    except PhotoError as exc:
-        path.unlink(missing_ok=True)
-        raise BuildError(f"lossless check failed: {exc}") from exc
-    if embedded != Counter(used_hashes):
-        path.unlink(missing_ok=True)
-        raise BuildError(
-            "lossless check failed: the PDF's embedded JPEG streams do not match the source "
-            "photos byte for byte; the output was removed"
+        used_hashes = [
+            records[op.file].sha256
+            for plan in plans
+            for op in plan.ops
+            if isinstance(op, ImageOp)
+            and not op.placeholder
+            and op.file is not None
+            and op.file in records
+        ]
+        guides = mode in GUIDED_MODES
+        renderer = PdfRenderer(
+            path,
+            ctx.geom,
+            ctx.registry["credit"],
+            title=_title(year, mode, ignore_lock, low_quality),
         )
+        marks = trim_mark_ops(cfg, ctx.geom)
+        for plan in plans:
+            renderer.add_page(plan, marks, guides=guides)
+        renderer.save()
+
+        try:
+            embedded = embedded_jpeg_hashes(path)
+        except PhotoError as exc:
+            path.unlink(missing_ok=True)
+            raise BuildError(f"lossless check failed: {exc}") from exc
+        if embedded != Counter(used_hashes):
+            path.unlink(missing_ok=True)
+            raise BuildError(
+                "lossless check failed: the PDF's embedded JPEG streams do not match the source "
+                "photos byte for byte; the output was removed"
+            )
     return BuildResult(
         path=path,
         mode=mode,
@@ -450,4 +554,6 @@ def build_calendar(root: Path, year: int, mode: Mode, out_dir: Path | None = Non
         warnings=warnings,
         findings=findings,
         photo_hashes=sorted(used_hashes),
+        ignore_lock=ignore_lock,
+        low_quality=low_quality,
     )

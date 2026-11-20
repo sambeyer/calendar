@@ -160,6 +160,13 @@ class PpiPolicy(_Model):
         return self
 
 
+class LowQuality(_Model):
+    """Settings for ``build --low-quality``: photos are resampled and re-encoded."""
+
+    ppi: float = Field(gt=0, description="resample photos to at most this effective PPI")
+    jpeg_quality: int = Field(ge=1, le=100)
+
+
 class PhotoDefaults(_Model):
     fit: Literal["fill", "fit"]
     border_mm: float = Field(ge=0)
@@ -169,6 +176,7 @@ class PhotoDefaults(_Model):
     max_crop_fraction: float = Field(
         ge=0, lt=1, description="warn when fill crops more than this share of either axis"
     )
+    low_quality: LowQuality
 
 
 class HolidayBadge(_Model):

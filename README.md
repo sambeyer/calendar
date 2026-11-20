@@ -36,6 +36,19 @@ uv run birdcal reproduce 2027 [--tag TAG]    # rebuild the latest (or given) tag
 Output goes to `build/<year>/` (git-ignored): `calendar-<year>-<mode>.pdf`, plus
 `build-info.json` and `tag-message.txt` after a release.
 
+Two options produce files that must not be sent to the printer. Each one adds a suffix to the
+file name, and the PDF title and the command output say `NOT FOR PRINTING`:
+
+- `--ignore-lock` builds with photos that do not match `photos.lock` (or are not in it). The file
+  is named `calendar-<year>-<mode>-ignore-lock.pdf`. The photos used are listed as warnings.
+  Run `birdcal lock-photos <year>` and review the diff to make the build verified again.
+- `--low-quality` resamples each photo to `photo.low_quality.ppi` (default 150) and re-encodes it at
+  `photo.low_quality.jpeg_quality` (default 75), for a much smaller PDF. The file is named
+  `calendar-<year>-<mode>-low-quality.pdf`. The lossless check still runs, against the copies.
+
+Both can be combined (`calendar-<year>-print-ignore-lock-low-quality.pdf`). Neither changes the
+output without its flag.
+
 Exit codes: `0` ok (warnings allowed), `1` validation, build or release refused, `2`
 configuration could not be loaded.
 

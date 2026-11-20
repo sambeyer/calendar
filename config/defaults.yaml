@@ -85,6 +85,9 @@ photo:
     warn_below: 200  # effective PPI below this is a warning
     good_at: 300  # effective PPI at or above this is "good"
   max_crop_fraction: 0.15  # warn when a fill crop removes more than this share of an axis
+  low_quality:  # used by `build --low-quality` only; the output is marked not for printing
+    ppi: 150
+    jpeg_quality: 75
 
 grid:
   week_start: sunday  # monday | sunday
