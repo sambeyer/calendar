@@ -5,8 +5,8 @@ requirement, but it affects the printed result, so it needs approval before the 
 
 - **Source Sans 3** (Adobe, https://github.com/adobe-fonts/source-sans): grid numbers, weekday
   names, holiday and event labels, descriptions and the back-page body text.
-  Files: `SourceSans3-Regular.ttf` (400), `SourceSans3-Medium.ttf` (500),
-  `SourceSans3-SemiBold.ttf` (600).
+  Files: `SourceSans3-Regular.ttf` (400), `SourceSans3-Italic.ttf` (400 italic),
+  `SourceSans3-Medium.ttf` (500), `SourceSans3-SemiBold.ttf` (600).
 - **Lora** (Cyreal, https://github.com/cyrealtype/Lora-Cyrillic): month titles, bird names, the
   back-page heading and names, and the scientific names (Italic).
   Files: `Lora-SemiBold.ttf` (600), `Lora-Italic.ttf` (400 italic).

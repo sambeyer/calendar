@@ -230,6 +230,7 @@ class Fonts(_Model):
     back_heading: FontRole
     back_name: FontRole
     back_body: FontRole
+    back_appeal: FontRole
 
 
 class BackText(_Model):

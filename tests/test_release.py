@@ -129,6 +129,7 @@ def test_release_tags_annotated_with_pdf_hash_and_build_info(
         "Lora-SemiBold.ttf",
         "Lora-Italic.ttf",
         "SourceSans3-Regular.ttf",
+        "SourceSans3-Italic.ttf",
         "SourceSans3-Medium.ttf",
         "SourceSans3-SemiBold.ttf",
     }

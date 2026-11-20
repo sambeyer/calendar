@@ -814,7 +814,7 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
     for i, (name, bio) in enumerate(content.photographers, start=1):
         items.append(("back_name", _reflow(name) or f"Photographer {i} name to come"))
         items.append(("back_body", _reflow(bio) or "Bio to come"))
-    items.append(("back_body", _reflow(content.appeal) or "Donation message to come"))
+    items.append(("back_appeal", _reflow(content.appeal) or "Donation message to come"))
 
     gap = bt.gap_mm
     texts: list[TextOp] = []

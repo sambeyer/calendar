@@ -121,6 +121,7 @@ fonts:
   back_heading: {file: fonts/Lora-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#FFFFFF", align: left}
   back_name: {file: fonts/Lora-SemiBold.ttf, size_pt: 12, min_size_pt: 9, colour: "#FFFFFF", align: left}
   back_body: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
+  back_appeal: {file: fonts/SourceSans3-Italic.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
 
 # Text on the back of the last sheet (December's back): photographer bios and a donation appeal.
 # The text is white on a semi-transparent black panel, so the photo still shows through. The
