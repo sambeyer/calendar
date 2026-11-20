@@ -31,6 +31,7 @@ from birdcal.layout import (
     Line,
     Op,
     PagePlan,
+    RoundedFillRect,
     StrokeRect,
     TextOp,
 )
@@ -121,6 +122,12 @@ class PdfRenderer:
             else:
                 c.setFillColor(HexColor(op.colour))
                 c.rect(*self._rect_path(op.rect), stroke=0, fill=1)
+        elif isinstance(op, RoundedFillRect):
+            c.saveState()
+            c.setFillColor(HexColor(op.colour))
+            x, y, w, h = self._rect_path(op.rect)
+            c.roundRect(x, y, w, h, self.conv.len(op.radius_mm), stroke=0, fill=1)
+            c.restoreState()
         elif isinstance(op, StrokeRect):
             c.saveState()
             c.setStrokeColor(HexColor(op.colour))

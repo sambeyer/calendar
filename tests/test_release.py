@@ -126,9 +126,11 @@ def test_release_tags_annotated_with_pdf_hash_and_build_info(
     assert info["commit"] == _git(root, "rev-parse", "HEAD")
     assert "pydantic" in info["libraries"] and "reportlab" in info["libraries"]
     assert set(info["font_sha256"]) == {
-        "Inter-Regular.ttf",
-        "Inter-Medium.ttf",
-        "Inter-SemiBold.ttf",
+        "Lora-SemiBold.ttf",
+        "Lora-Italic.ttf",
+        "SourceSans3-Regular.ttf",
+        "SourceSans3-Medium.ttf",
+        "SourceSans3-SemiBold.ttf",
     }
     on_disk = json.loads(result.info_path.read_text(encoding="utf-8"))
     assert on_disk == info

@@ -171,6 +171,14 @@ class PhotoDefaults(_Model):
     )
 
 
+class HolidayBadge(_Model):
+    """A rounded box behind the holiday names in a grid cell."""
+
+    colour: str
+    radius_mm: float = Field(ge=0)
+    padding_mm: float = Field(ge=0)
+
+
 class Grid(_Model):
     week_start: Literal["monday", "sunday"]
     week_numbers: bool
@@ -184,6 +192,7 @@ class Grid(_Model):
     line_width_pt: float = Field(gt=0)
     line_colour: str
     cell_padding_mm: float = Field(ge=0)
+    holiday_badge: HolidayBadge
 
 
 class FontRole(_Model):

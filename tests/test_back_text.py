@@ -68,12 +68,16 @@ def test_panel_is_inside_the_safe_margin_and_clear_of_the_binding(make_repo: Mak
     margin = cfg.safe_margin_mm
     assert panel.x >= trim.x + margin and panel.right <= trim.right - margin
     assert panel.y >= trim.y + margin and panel.bottom <= trim.bottom - margin
-    # The last back is a photo back: its binding holes are at the bottom edge, and the panel
-    # stops above them.
+    # The last back is a photo back with its binding holes at the bottom edge. The panel keeps
+    # the same margin from that edge as from the sides, and the text stays above the holes; the
+    # holes punch through the bottom of the panel.
     assert _last_back(plans).binding_at_bottom
     holes = cfg.binding.holes
     assert holes is not None
-    assert panel.bottom <= trim.bottom - (holes.edge_offset_mm + holes.diameter_mm / 2) + 1e-9
+    assert panel.bottom == pytest.approx(trim.bottom - margin)
+    hole_clear = trim.bottom - (holes.edge_offset_mm + holes.diameter_mm / 2)
+    texts = [op for op in _last_back(plans).ops if isinstance(op, TextOp)]
+    assert all(op.rect.bottom < hole_clear for op in texts)
 
 
 @pytest.mark.parametrize(

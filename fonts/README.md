@@ -1,14 +1,16 @@
 # Fonts
 
-PROVISIONAL: Inter is a placeholder chosen to get the layout moving. The font choice
-affects the printed result, so it needs your approval before the first release.
+Two families, both SIL Open Font License 1.1. The choice is a design decision, not a printer
+requirement, but it affects the printed result, so it needs approval before the first release.
 
-- Family: Inter (https://rsms.me/inter/), designed by Rasmus Andersson.
-- Licence: SIL Open Font License 1.1.
-- Source: Google Fonts, via the npm package `@expo-google-fonts/inter` 0.2.3. That wrapper
-  is MIT; the font files themselves are the OFL-licensed Google Fonts builds.
-- Files: `Inter-Regular.ttf` (400), `Inter-Medium.ttf` (500), `Inter-SemiBold.ttf` (600).
-- Missing: the verbatim `OFL.txt` licence text is not in the source package and is not yet
-  vendored. Add it here before the first release. An italic cut is also not vendored, so the
-  scientific name is set upright for now.
+- **Source Sans 3** (Adobe, https://github.com/adobe-fonts/source-sans): grid numbers, weekday
+  names, holiday and event labels, descriptions and the back-page body text.
+  Files: `SourceSans3-Regular.ttf` (400), `SourceSans3-Medium.ttf` (500),
+  `SourceSans3-SemiBold.ttf` (600).
+- **Lora** (Cyreal, https://github.com/cyrealtype/Lora-Cyrillic): month titles, bird names, the
+  back-page heading and names, and the scientific names (Italic).
+  Files: `Lora-SemiBold.ttf` (600), `Lora-Italic.ttf` (400 italic).
+- Source: Google Fonts, via the npm packages `@expo-google-fonts/source-sans-3` 0.4.2 and
+  `@expo-google-fonts/lora` 0.4.2 (MIT wrappers; the font files are the OFL builds).
+- Licence texts: `OFL-SourceSans3.txt` and `OFL-Lora.txt`.
 - Integrity: `SHA256SUMS` lists the hash of each file. Build info records these hashes.

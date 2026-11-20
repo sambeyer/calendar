@@ -99,21 +99,25 @@ grid:
   line_width_pt: 0.5
   line_colour: "#555555"
   cell_padding_mm: 1.5
+  holiday_badge:
+    colour: "#DCDCDC"
+    radius_mm: 1.5
+    padding_mm: 0.8
 
 # Fonts are PROVISIONAL until approved (see README). Each role names a font file under fonts/.
 fonts:
-  month_title: {file: fonts/Inter-SemiBold.ttf, size_pt: 36, min_size_pt: 24, colour: "#111111", align: left}
-  day_numbers: {file: fonts/Inter-Regular.ttf, size_pt: 14, min_size_pt: 9, colour: "#111111", align: right}
-  day_names: {file: fonts/Inter-Medium.ttf, size_pt: 10, min_size_pt: 7, colour: "#333333", align: centre}
-  bird_name: {file: fonts/Inter-SemiBold.ttf, size_pt: 20, min_size_pt: 14, colour: "#111111", align: left}
-  scientific_name: {file: fonts/Inter-Regular.ttf, size_pt: 11, min_size_pt: 8, colour: "#444444", align: left}
-  description: {file: fonts/Inter-Regular.ttf, size_pt: 10, min_size_pt: 7, colour: "#222222", align: left}
-  holiday_label: {file: fonts/Inter-Medium.ttf, size_pt: 6.5, min_size_pt: 5, colour: "#B00020", align: left}
-  event_label: {file: fonts/Inter-Medium.ttf, size_pt: 6.5, min_size_pt: 5, colour: "#1A4F8B", align: left}
-  credit: {file: fonts/Inter-Regular.ttf, size_pt: 7, min_size_pt: 6, colour: "#555555", align: right}
-  back_heading: {file: fonts/Inter-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#FFFFFF", align: left}
-  back_name: {file: fonts/Inter-SemiBold.ttf, size_pt: 12, min_size_pt: 9, colour: "#FFFFFF", align: left}
-  back_body: {file: fonts/Inter-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
+  month_title: {file: fonts/Lora-SemiBold.ttf, size_pt: 36, min_size_pt: 24, colour: "#111111", align: left}
+  day_numbers: {file: fonts/SourceSans3-Regular.ttf, size_pt: 14, min_size_pt: 9, colour: "#111111", align: left}
+  day_names: {file: fonts/SourceSans3-Medium.ttf, size_pt: 10, min_size_pt: 7, colour: "#333333", align: centre}
+  bird_name: {file: fonts/Lora-SemiBold.ttf, size_pt: 20, min_size_pt: 14, colour: "#111111", align: left}
+  scientific_name: {file: fonts/Lora-Italic.ttf, size_pt: 11, min_size_pt: 8, colour: "#444444", align: left}
+  description: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 7, colour: "#222222", align: left}
+  holiday_label: {file: fonts/SourceSans3-SemiBold.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#9B0019", align: right}
+  event_label: {file: fonts/SourceSans3-Medium.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#1A4F8B", align: right}
+  credit: {file: fonts/SourceSans3-Regular.ttf, size_pt: 7, min_size_pt: 6, colour: "#555555", align: right}
+  back_heading: {file: fonts/Lora-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#FFFFFF", align: left}
+  back_name: {file: fonts/Lora-SemiBold.ttf, size_pt: 12, min_size_pt: 9, colour: "#FFFFFF", align: left}
+  back_body: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
 
 # Text on the back of the last sheet (December's back): photographer bios and a donation appeal.
 # The text is white on a semi-transparent black panel, so the photo still shows through. The

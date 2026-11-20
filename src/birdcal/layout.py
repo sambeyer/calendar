@@ -18,7 +18,7 @@ from typing import Literal
 from birdcal.config import Config, FontRole
 from birdcal.dates import MonthGrid, column_weekdays, day_name, month_title
 from birdcal.geometry import Rect, SheetGeometry
-from birdcal.text import LEADING, TextFitError, fit_text
+from birdcal.text import LEADING, TextFitError, fit_text, string_width_mm
 
 Align = Literal["left", "centre", "right"]
 
@@ -35,6 +35,13 @@ class FillRect:
     rect: Rect
     colour: str
     alpha: float = 1.0
+
+
+@dataclass(frozen=True)
+class RoundedFillRect:
+    rect: Rect
+    colour: str
+    radius_mm: float
 
 
 @dataclass(frozen=True)
@@ -91,7 +98,7 @@ class ImageOp:
     source_path: str | None = None
 
 
-Op = FillRect | StrokeRect | Line | Circle | TextOp | ImageOp
+Op = FillRect | RoundedFillRect | StrokeRect | Line | Circle | TextOp | ImageOp
 
 
 @dataclass(frozen=True)
@@ -508,7 +515,7 @@ def _grid_ops(
                 reg,
                 "day_numbers",
                 where=f"{where} day {day.date.day}",
-                align="right",
+                align="left",
             )
             if num_op is not None:
                 if number_colour is not None:
@@ -524,42 +531,68 @@ def _grid_ops(
             if not day.in_month:
                 continue
             day_labels = labels.get(day.date, DayLabels())
+            badge = grid_cfg.holiday_badge
+            bp = badge.padding_mm
+            label_w = cell.w - 2 * pad
             label_top = number_rect.bottom + 0.5
-            label_rect = Rect(
-                cell.x + pad, label_top, cell.w - 2 * pad, cell.bottom - pad - label_top
-            )
+            bottom_limit = cell.bottom - pad
+            label_h = bottom_limit - label_top
             hol_text = "\n".join(
                 f"{cfg.labels.holiday.prefix}{t}{cfg.labels.holiday.suffix}"
                 for t in day_labels.holidays
             )
             hol_op = _text_op(
-                label_rect,
+                Rect(cell.x + pad + bp, label_top + bp, label_w - 2 * bp, label_h - 2 * bp),
                 hol_text,
                 cfg.fonts.holiday_label,
                 reg,
                 "holiday_label",
                 where=f"{where} {day.date.isoformat()} holiday",
+                align="right",
             )
-            if hol_op:
-                ops.append(hol_op)
-                label_rect = Rect(
-                    label_rect.x,
-                    label_rect.y + _block_height(hol_op) + 0.5,
-                    label_rect.w,
-                    max(0.0, label_rect.h - _block_height(hol_op) - 0.5),
-                )
+            used = 0.0 if hol_op is None else _block_height(hol_op) + 2 * bp + 0.5
             ev_text = "\n".join(
                 f"{cfg.labels.event.prefix}{t}{cfg.labels.event.suffix}" for t in day_labels.events
             )
             ev_op = _text_op(
-                label_rect,
+                Rect(cell.x + pad, label_top, label_w, max(0.0, label_h - used)),
                 ev_text,
                 cfg.fonts.event_label,
                 reg,
                 "event_label",
                 where=f"{where} {day.date.isoformat()} event",
+                align="right",
             )
-            if ev_op:
+            # Stack from the bottom right: events at the bottom, the holiday badge above them.
+            stack_y = bottom_limit
+            if ev_op is not None:
+                ev_h = _block_height(ev_op)
+                ev_op = replace(ev_op, rect=Rect(cell.x + pad, stack_y - ev_h, label_w, ev_h))
+                stack_y -= ev_h + 0.5
+            if hol_op is not None:
+                hol_h = _block_height(hol_op)
+                hol_w = max(
+                    string_width_mm(line, hol_op.font, hol_op.size_pt) for line in hol_op.lines
+                )
+                badge_rect = Rect(
+                    cell.right - pad - hol_w - 2 * bp,
+                    stack_y - hol_h - 2 * bp,
+                    hol_w + 2 * bp,
+                    hol_h + 2 * bp,
+                )
+                ops.append(RoundedFillRect(badge_rect, badge.colour, badge.radius_mm))
+                ops.append(
+                    replace(
+                        hol_op,
+                        rect=Rect(
+                            cell.right - pad - bp - (label_w - 2 * bp),
+                            badge_rect.y + bp,
+                            label_w - 2 * bp,
+                            hol_h,
+                        ),
+                    )
+                )
+            if ev_op is not None:
                 ops.append(ev_op)
 
     # Grid lines last so they sit on top of shading.
@@ -748,22 +781,23 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
     trim = ctx.geom.trim_rect
     keep = cfg.binding.keep_clear_mm
     edge = max(bt.edge_mm, cfg.safe_margin_mm)
+    pad = bt.padding_mm
     top, bottom = trim.y + edge, trim.bottom - edge
+    # The text stays inside the padding, and above the binding holes when they are at the bottom.
+    text_bottom = bottom - pad
     if binding_at_bottom:
-        # Stop just above the binding holes (their outer edge plus a small gap).
         holes = cfg.binding.holes
         if holes is None:
-            bottom = min(bottom, trim.bottom - keep)
+            text_bottom = min(text_bottom, trim.bottom - keep)
         else:
             clear = holes.edge_offset_mm + holes.diameter_mm / 2 + BACK_TEXT_HOLE_GAP_MM
-            bottom = min(bottom, trim.bottom - clear)
+            text_bottom = min(text_bottom, trim.bottom - clear)
     else:
         top = max(top, trim.y + keep)
     left, right = trim.x + edge, trim.right - edge
     width = min(bt.width_mm, right - left)
     x0 = left if bt.position.endswith("left") else right - width
-    pad = bt.padding_mm
-    inner_w, inner_h = width - 2 * pad, (bottom - top) - 2 * pad
+    inner_w, inner_h = width - 2 * pad, (text_bottom - (top + pad))
     if inner_w <= 0 or inner_h <= 0:
         raise LayoutError("back text has no room; check back_text and binding.keep_clear_mm")
 
@@ -798,9 +832,12 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
             "shorten the bios or widen back_text.width_mm"
         )
 
-    panel_h = total + 2 * pad
-    y0 = top if bt.position.startswith("top") else bottom - panel_h
-    panel = Rect(x0, y0, width, panel_h)
+    if bt.position.startswith("top"):
+        text_start = top + pad
+        panel = Rect(x0, top, width, text_start + total + pad - top)
+    else:
+        text_start = text_bottom - total
+        panel = Rect(x0, text_start - pad, width, bottom - (text_start - pad))
     if cfg.hanger.enabled:
         cx, cy = hanger_centre(cfg)
         margin = cfg.hanger.diameter_mm / 2 + 3
@@ -815,7 +852,7 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
             )
 
     ops: list[Op] = [FillRect(panel, bt.panel_colour, bt.panel_opacity)]
-    cursor = y0 + pad
+    cursor = text_start
     for op in texts:
         height = _block_height(op)
         ops.append(replace(op, rect=Rect(x0 + pad, cursor, inner_w, height)))
