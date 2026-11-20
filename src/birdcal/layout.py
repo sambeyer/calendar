@@ -769,6 +769,13 @@ class BackContent:
 BACK_TEXT_HOLE_GAP_MM = 3.0  # clear space between the binding holes and the back text panel
 
 
+def _reflow(text: str | None) -> str | None:
+    """Collapse all whitespace, including line breaks, to single spaces. None when empty."""
+    if text is None:
+        return None
+    return " ".join(text.split()) or None
+
+
 def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: bool) -> list[Op]:
     """Photographer bios and the appeal on a solid panel in one corner of the back page.
 
@@ -801,11 +808,13 @@ def back_text_ops(ctx: LayoutContext, content: BackContent, binding_at_bottom: b
     if inner_w <= 0 or inner_h <= 0:
         raise LayoutError("back text has no room; check back_text and binding.keep_clear_mm")
 
+    # Line breaks in the source text (from YAML block scalars) are reflowed: the text wraps to
+    # the panel width, not to the line lengths it was typed at.
     items: list[tuple[str, str]] = [("back_heading", "About the photographers")]
     for i, (name, bio) in enumerate(content.photographers, start=1):
-        items.append(("back_name", name or f"Photographer {i} name to come"))
-        items.append(("back_body", bio or "Bio to come"))
-    items.append(("back_body", content.appeal or "Donation message to come"))
+        items.append(("back_name", _reflow(name) or f"Photographer {i} name to come"))
+        items.append(("back_body", _reflow(bio) or "Bio to come"))
+    items.append(("back_body", _reflow(content.appeal) or "Donation message to come"))
 
     gap = bt.gap_mm
     texts: list[TextOp] = []

@@ -128,7 +128,7 @@ fonts:
 back_text:
   enabled: true
   position: bottom_right  # top_left | top_right | bottom_left | bottom_right
-  width_mm: 120
+  width_mm: 160
   edge_mm: 5  # panel distance from the trim edge (the safe margin)
   padding_mm: 4
   gap_mm: 1.5  # space between the heading, names, bios and appeal

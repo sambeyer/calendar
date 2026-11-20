@@ -100,6 +100,9 @@ def test_position_setting_moves_the_panel_to_that_corner(
         config_path.read_text(encoding="utf-8"),
         count=1,
     )
+    # A 160 mm panel in a top corner would cover the hanger hole, so this test uses a narrower
+    # panel; the width is not what this test checks.
+    text = re.sub(r"(back_text:\n(?:  .*\n)*?  width_mm: )[0-9.]+", r"\g<1>120", text, count=1)
     config_path.write_text(text, encoding="utf-8")
     ctx, plans = _plans(root)
     trim = ctx.geom.trim_rect
