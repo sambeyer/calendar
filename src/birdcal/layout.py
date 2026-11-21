@@ -418,6 +418,12 @@ def _caption_ops(ctx: LayoutContext, rect: Rect, bird: BirdView, where: str) -> 
             align="left",
             max_height=desc_rect.h,
         )
+        if desc_op is not None:
+            # Centred vertically in the right column; the text stays left-aligned.
+            top = desc_rect.y + (desc_rect.h - _block_height(desc_op)) / 2
+            desc_op = replace(
+                desc_op, rect=Rect(desc_rect.x, top, desc_rect.w, _block_height(desc_op))
+            )
     else:
         # Stacked beside the grid: the description takes the rest of the column.
         desc_h = max(0.0, column.bottom - y)
