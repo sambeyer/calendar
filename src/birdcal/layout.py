@@ -406,6 +406,20 @@ def _caption_ops(ctx: LayoutContext, rect: Rect, bird: BirdView, where: str) -> 
     if credit:
         h = place(credit, "credit", max(0.0, column.bottom - y), "credit")
         y += h
+    if below and ops:
+        # Centre the left column vertically in the caption, as the description is.
+        top = min(op.rect.y for op in ops if isinstance(op, TextOp))
+        bottom = max(op.rect.y + _block_height(op) for op in ops if isinstance(op, TextOp))
+        shift = column.y + (column.h - (bottom - top)) / 2 - top
+        ops = [
+            replace(
+                op,
+                rect=Rect(op.rect.x, op.rect.y + shift, op.rect.w, _block_height(op)),
+            )
+            if isinstance(op, TextOp)
+            else op
+            for op in ops
+        ]
 
     if below:
         desc_op = _text_op(
