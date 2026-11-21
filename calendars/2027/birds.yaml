@@ -5,7 +5,7 @@ birds:
   - month: 1
     common_name: Rainbow Lorikeet
     scientific_name: Yeetus Lorikeetus
-    description: A colourful nectar-feeding parrot with a blue head, green back and orange chest.
+    description:
     location: Jolon's old house, Mulgrave
     date_taken: null
     photo_credit: null
@@ -13,7 +13,12 @@ birds:
   - month: 2
     common_name: Australian Gannet
     scientific_name: Gannetus Planetus
-    description: A large white seabird with a golden head and black wingtips. It nests in dense colonies on offshore islands and cliffs.
+    description: >
+      Point Danger is home to Australia's only inland Gannet colony. It serves as overflow
+      from a nearby offshore colony, home to thousands of Gannets. As seen here, a pair of
+      mating gannets will rub their beaks together to strengthen their bond. A male Gannet
+      will court a partner by draping seaweed over her, a move Jolon has found unsuccessful
+      to date.
     location: Gannet colony, Point Danger
     date_taken: null
     photo_credit: null
@@ -21,7 +26,11 @@ birds:
   - month: 3
     common_name: Striated Grasswren
     scientific_name: Mister Grassus Wreni
-    description: A small, streaked brown bird of dry inland mallee and woodland country in north-west Victoria.
+    description: >
+      This photo was taken after stalking Grasswrens through Hattah by following their
+      quiet and high pitched call. We learnt that you really do have to work for your
+      passerines. Astonishingly within the same five minutes, we independently captured
+      a Mallee Emuwren (not featured), an even more elusive wren.
     location: Hattah-Kulkyne National Park
     date_taken: null
     photo_credit: null
@@ -29,7 +38,12 @@ birds:
   - month: 4
     common_name: Freckled Duck
     scientific_name: Duckus Duckus Goosus
-    description: A dark brown duck with a freckled chest. It gathers on inland swamps and wetlands that fill after heavy rain.
+    description: >
+      "The nursery" at Braeside Park is famous for ducks and photo opportunities.
+      On this particular occasion many photographers with very expensive gear
+      completely missed one of Australia's rarest ducks right in front of them,
+      until we (Jolon) pointed them out. His ego is still recovering from the
+      incident.
     location: Braeside Park
     date_taken: null
     photo_credit: null
@@ -37,15 +51,21 @@ birds:
   - month: 5
     common_name: Silvereye
     scientific_name: Ag Oculus
-    description: A small olive-green bird with a white eye-ring, found in gardens and bushland across southern Australia.
-    location: Howqua near Frys Flat
+    description: >
+      Taken on an otherwise unsuccessful trip to the Howqua river, unless success includes
+      being very loud early in the morning after the campsite next to you was very loud
+      late at night.
+    location: Howqua near Fry's Flat
     date_taken: null
     photo_credit: null
     photo: {file: IMG_8848-Enhanced-NR.jpg}
   - month: 6
     common_name: Crested Pigeon
     scientific_name: Pigeoerectus
-    description: A grey-brown pigeon with a backward-sweeping crest, common in grasslands and towns across inland Australia.
+    description: >
+      In true Ultimate Wingmen fashion this photo was taken after seeing a rainbow, taking the
+      first left, and stopping at the first bird we saw. Jolon got out, Sam rolled the Jimny
+      back to reveal the bird, and the rest is history.
     location: Just out of Echuca
     date_taken: null
     photo_credit: null
@@ -53,15 +73,21 @@ birds:
   - month: 7
     common_name: Red-capped Robin (female)
     scientific_name: Rossa Robina
-    description: The female is grey-brown with a rufous cap and white underparts. She hunts insects from low perches in open woodland.
-    location: Longwood fire ash, after the Longwood fires
+    description: >
+      You can just barely see the red cap of this female Red-capped Robin, which is noticeably
+      less vivid than her male counterpart. To complete the washed out scene, she is
+      appropriately posed in front of ash from the Longwood fires in early 2026.
+    location: Euroa
     date_taken: null
     photo_credit: null
     photo: {file: IMG_1542.jpg}
   - month: 8
     common_name: Brolga
     scientific_name: Nota Flamingus
-    description: A tall grey crane with a red head, known for its dancing displays on wetlands and floodplains.
+    description: >
+      Known by some as the emu of the wetlands this crane is known for it's crane-link mating dance.
+      While not considered endangered, the range Brolgas can be found is shrinking, particularly in
+      the south of Australia (which makes this photo slightly more notable).
     location: Western Treatment Plant (the poo farm), Werribee
     date_taken: null
     photo_credit: null
@@ -69,7 +95,12 @@ birds:
   - month: 9
     common_name: Swift Parrot
     scientific_name: Lathamus discolor
-    description: Critically endangered, mainly due to logging. A lot of work is needed to ensure the survival of this species.
+    description: >
+      The Swift Parrots migrate to Tasmania each year to breed. Their breeding grounds have been heavily
+      logged, as have the islands they rest at on their way between Tassie and the mainland. As a result
+      this bird is critically endangered with about 500 remaining. Although their situation isn't as dire
+      as the Orange-bellied Parrot (which shares the same breeding and migration pattern, featured in
+      September of last year's calendar), a lot of work is needed to ensure the survival of this species.
     location: Plenty Gorge Park
     date_taken: null
     photo_credit: null
@@ -77,7 +108,10 @@ birds:
   - month: 10
     common_name: Grey Teal
     scientific_name: We think
-    description: A small grey-brown duck of inland and coastal wetlands.
+    description: |
+      A misty morning
+      The swamp whispers in your ear
+      Come my friend, come in
     location: Gemmills Swamp, Mooroopna
     date_taken: null
     photo_credit: null
@@ -85,7 +119,11 @@ birds:
   - month: 11
     common_name: Eastern Spinebill
     scientific_name: Lumbar williami
-    description: A honeyeater with a long, curved bill that feeds on nectar from flowering shrubs along the east coast.
+    description: >
+      This photo is our first calendar contribution from an honorary wingwoman.
+      In exchange she has promised to paint the cover of next year's calendar,
+      and save us from the photoshop crimes that surely would have been committed
+      otherwise.
     location: Grampians National Park
     date_taken: null
     photo_credit: null
@@ -93,7 +131,9 @@ birds:
   - month: 12
     common_name: Pink Robin
     scientific_name: Pinky Dinky
-    description: The male has a bright pink breast. This small robin lives in dense forest in south-east Australia and Tasmania.
+    description: >
+      This Pink Robin braved a snowy November morning. It just snuck in to this year's calendar,
+      and thank goodness because we were running a little low on photos.
     location: Mt Donna Buang
     date_taken: null
     photo_credit: null
