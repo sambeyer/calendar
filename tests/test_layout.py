@@ -187,7 +187,7 @@ def test_oversized_description_names_month_and_field(make_repo: MakeRepo) -> Non
 
 
 def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
-    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 5
+    text = "A moderately long description of a bird that needs to shrink to fit the box. " * 12
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(
@@ -204,13 +204,12 @@ def test_description_shrinks_before_failing(make_repo: MakeRepo) -> None:
     sizes = sorted({op.size_pt for op in desc})
     assert sizes
     assert min(sizes) < 10  # shrank below the 10 pt role size to fit
-    assert all(len(op.lines) <= 2 for op in desc), "descriptions are limited to two lines"
     for plan in plans:
         _assert_page_invariants(ctx, plan)
 
 
-def test_description_longer_than_two_lines_at_minimum_size_fails(make_repo: MakeRepo) -> None:
-    text = "A very long description that cannot be shown in two lines at any allowed size. " * 30
+def test_description_longer_than_the_box_at_minimum_size_fails(make_repo: MakeRepo) -> None:
+    text = "A very long description that cannot fit the box at any allowed size. " * 60
     root = make_repo(copy_fonts=True)
     birds = root / "calendars" / "2027" / "birds.yaml"
     birds.write_text(

@@ -140,6 +140,11 @@ class Spacing(_Model):
     gap_mm: float = Field(ge=0)
     caption_height_mm: float = Field(gt=0, description="caption block height when below the grid")
     caption_width_fraction: float = Field(gt=0, lt=1, description="caption share when beside")
+    caption_split_fraction: float = Field(
+        gt=0,
+        lt=1,
+        description="below the grid: width share of the name column; the rest is description",
+    )
     week_number_width_mm: float = Field(ge=0)
 
 
@@ -227,6 +232,7 @@ class Fonts(_Model):
     holiday_label: FontRole
     event_label: FontRole
     credit: FontRole
+    location: FontRole
     back_heading: FontRole
     back_name: FontRole
     back_body: FontRole

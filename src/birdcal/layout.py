@@ -18,7 +18,7 @@ from typing import Literal
 from birdcal.config import Config, FontRole
 from birdcal.dates import MonthGrid, column_weekdays, day_name, month_title
 from birdcal.geometry import Rect, SheetGeometry
-from birdcal.text import LEADING, TextFitError, fit_text, string_width_mm
+from birdcal.text import TextFitError, fit_text, string_width_mm
 
 Align = Literal["left", "centre", "right"]
 
@@ -346,75 +346,91 @@ def _photo_op(ctx: LayoutContext, rect: Rect, bird: BirdView) -> ImageOp:
 
 
 def _caption_ops(ctx: LayoutContext, rect: Rect, bird: BirdView, where: str) -> list[Op]:
+    """The bird's details under the grid, or beside it.
+
+    Below the grid the details are in a left column (bird name, scientific name, location,
+    credit) and the description fills the right column. Beside the grid they stack in one column,
+    with the description below them. Descriptions shrink to fit, down to the font's minimum.
+    """
     cfg = ctx.config
-    reg = ctx.registry
-    ops: list[Op] = []
+    sp = cfg.layout.spacing
     name = bird.common_name or "Bird name to come"
     desc = bird.description or ("Description to come" if bird.is_empty else "")
     sci = bird.scientific_name or ""
-    meta_bits = []
-    if bird.location:
-        meta_bits.append(bird.location)
+    location = bird.location or ""
+    credit_bits = []
     if bird.date_taken is not None:
-        meta_bits.append(f"taken {bird.date_taken.strftime('%d/%m/%Y')}")
+        credit_bits.append(f"taken {bird.date_taken.strftime('%d/%m/%Y')}")
     if bird.photo_credit:
-        meta_bits.append(f"Photo: {bird.photo_credit}")
-    meta = " · ".join(meta_bits)
+        credit_bits.append(f"Photo: {bird.photo_credit}")
+    credit = " · ".join(credit_bits)
 
-    cursor = rect.y
-    name_op = _text_op(
-        Rect(rect.x, cursor, rect.w, rect.h * 0.35),
-        name,
-        cfg.fonts.bird_name,
-        reg,
-        "bird_name",
-        where=f"{where} bird name",
-        align="left",
-        max_height=rect.h * 0.35,
-    )
-    if name_op:
-        ops.append(name_op)
-        cursor += _block_height(name_op) + cfg.layout.spacing.gap_mm
-    sci_op = _text_op(
-        Rect(rect.x, cursor, rect.w, rect.h * 0.12),
-        sci,
-        cfg.fonts.scientific_name,
-        reg,
-        "scientific_name",
-        where=f"{where} scientific name",
-        align="left",
-        max_height=rect.h * 0.12,
-    )
-    if sci_op:
-        ops.append(sci_op)
-        cursor += _block_height(sci_op) + cfg.layout.spacing.gap_mm / 2
-    meta_op = _text_op(
-        Rect(rect.x, cursor, rect.w, 8.0),
-        meta,
-        cfg.fonts.credit,
-        reg,
-        "credit",
-        where=f"{where} location and date",
-        align="left",
-        max_height=8.0,
-    )
-    if meta_op:
-        ops.append(meta_op)
-        cursor += _block_height(meta_op) + cfg.layout.spacing.gap_mm / 2
-    # The description is limited to two lines at its own size; longer text shrinks to fit two
-    # lines, and if it still cannot, the build fails naming the month.
-    two_lines_mm = 2 * cfg.fonts.description.size_pt * LEADING / 72 * 25.4
-    desc_height = min(max(0.0, rect.bottom - cursor), two_lines_mm)
-    desc_op = _text_op(
-        Rect(rect.x, cursor, rect.w, desc_height),
-        desc,
-        cfg.fonts.description,
-        reg,
-        "description",
-        where=f"{where} description",
-        align="left",
-        max_height=desc_height,
-    )
+    below = cfg.layout.caption.placement == "below_grid"
+    if below:
+        split = rect.x + rect.w * sp.caption_split_fraction
+        column = Rect(rect.x, rect.y, split - rect.x - sp.gap_mm / 2, rect.h)
+        desc_rect = Rect(split + sp.gap_mm / 2, rect.y, rect.right - split - sp.gap_mm / 2, rect.h)
+    else:
+        column = rect
+        desc_rect = Rect(rect.x, rect.y, rect.w, rect.h)  # narrowed below, after the others
+
+    ops: list[Op] = []
+    y = column.y
+
+    def place(text: str, role_key: str, max_h: float, label: str) -> float:
+        """Add one left-column block at ``y`` and return its height (0 when empty)."""
+        op = _text_op(
+            Rect(column.x, y, column.w, max_h),
+            text,
+            getattr(cfg.fonts, role_key),
+            ctx.registry,
+            role_key,
+            where=f"{where} {label}",
+            align="left",
+            max_height=max_h,
+        )
+        if op is None:
+            return 0.0
+        ops.append(op)
+        return _block_height(op)
+
+    # The name keeps the top-left of the caption. The scientific name sits close under it.
+    h = place(name, "bird_name", column.h * 0.6 if below else column.h * 0.35, "bird name")
+    y += h + (sp.gap_mm / 4 if below else sp.gap_mm)
+    if sci:
+        h = place(sci, "scientific_name", column.bottom - y, "scientific name")
+        y += h + sp.gap_mm / 2
+    if location:
+        h = place(location, "location", column.bottom - y, "location")
+        y += h + sp.gap_mm / 2
+    if credit:
+        h = place(credit, "credit", max(0.0, column.bottom - y), "credit")
+        y += h
+
+    if below:
+        desc_op = _text_op(
+            desc_rect,
+            desc,
+            cfg.fonts.description,
+            ctx.registry,
+            "description",
+            where=f"{where} description",
+            align="left",
+            max_height=desc_rect.h,
+        )
+    else:
+        # Stacked beside the grid: the description takes the rest of the column.
+        desc_h = max(0.0, column.bottom - y)
+        desc_op = _text_op(
+            Rect(column.x, y, column.w, desc_h),
+            desc,
+            cfg.fonts.description,
+            ctx.registry,
+            "description",
+            where=f"{where} description",
+            align="left",
+            max_height=desc_h,
+        )
     if desc_op:
         ops.append(desc_op)
     return ops

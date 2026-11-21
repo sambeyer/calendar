@@ -121,9 +121,10 @@ PDF dates (default: 2000-01-01).
   - **Photo pages** are full bleed: the photo covers the whole page, bleed included. Holes are
     punched through the photo.
   - **Grid pages** keep `binding.keep_clear_mm` (17 mm) clear at the top for the binding holes, with the month
-    grid under the strip, with the caption (bird name, scientific name, location, photo credit and
-    a description of at most two lines) at the bottom of the
-    page and the grid spanning the full width (`layout.caption.placement`).
+    grid under the strip. The caption sits at the bottom of the page: a left column with the bird
+    name, scientific name, location and photo credit, and the description in a right column
+    (`layout.spacing.caption_split_fraction` sets the split). The description shrinks to fit the
+    column. The grid spans the full width (`layout.caption.placement`).
 - **Order:** the cover, then the cover's back (January's photo), then January's grid. Each grid
   page's back is the next month's photo, so February's photo is the back of January's grid.
   December's grid is followed by the back of the calendar: `sides.final_back_photo` if set, otherwise
