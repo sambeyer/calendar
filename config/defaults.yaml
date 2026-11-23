@@ -10,63 +10,63 @@
 # Set to true only once every TODO(printer) value below has been confirmed with the
 # printer and written down in the README checklist. The `release` command refuses to run
 # while this is false. Draft and proof builds are unaffected.
-printer_spec_confirmed: false  # TODO(printer)
+printer_spec_confirmed: true
 
 paths:
   # Machine-specific: set in local.yaml (git-ignored), e.g. photos_dir: /Volumes/Photos/birds
   photos_dir: ~/code/calendar/photos/2027
 
 page:
-  width_mm: 297  # TODO(printer)  A4-ish landscape placeholder (exact size TBD)
-  height_mm: 210  # TODO(printer)  A4-ish landscape placeholder (exact size TBD)
-  orientation: landscape  # TODO(printer)
+  width_mm: 297 #  A4-ish landscape placeholder (exact size TBD)
+  height_mm: 210 #  A4-ish landscape placeholder (exact size TBD)
+  orientation: landscape
 
-bleed_mm: 3  # TODO(printer)
-safe_margin_mm: 5  # TODO(printer)  text and grid stay 5 mm from the trim edge (matches the template)
+bleed_mm: 3
+safe_margin_mm: 5 #  text and grid stay 5 mm from the trim edge (matches the template)
 
 trim_marks:
-  enabled: true  # TODO(printer)
-  offset_mm: 3  # TODO(printer)
-  length_mm: 5  # TODO(printer)
-  line_width_pt: 0.25  # TODO(printer)
+  enabled: true
+  offset_mm: 3
+  length_mm: 5
+  line_width_pt: 0.25
 
 binding:
-  type: spiral  # TODO(printer)
-  edge: top  # TODO(printer)  binding along the long edge, at the top of each page
-  keep_clear_mm: 17  # TODO(printer)  space kept clear at the top of grid pages for the binding holes
+  type: spiral
+  edge: top #  binding along the long edge, at the top of each page
+  keep_clear_mm: 17 #  space kept clear at the top of grid pages for the binding holes
   holes:
-    diameter_mm: 4.8  # TODO(printer)
+    diameter_mm: 4.8
     pattern:
-      pitch_mm: 8.47  # TODO(printer)  3:1 spiral, i.e. 3 holes per inch
+      pitch_mm: 8.47 #  3:1 spiral, i.e. 3 holes per inch
       holes_per_inch: null
       count: null
-    edge_offset_mm: 7.4  # TODO(printer)  hole centre distance from the edge: 5 mm to the outer edge of each hole
-    end_margin_mm: 10  # TODO(printer)
-    centre: true  # TODO(printer)
+    edge_offset_mm: 7.4 #  hole centre distance from the edge: 5 mm to the outer edge of each hole
+    end_margin_mm: 10
+    centre: true
 
 hanger:
-  enabled: true  # TODO(printer)
-  shape: hole  # TODO(printer)
-  diameter_mm: 5  # TODO(printer)  template shows about 5 mm
-  x_mm: 148.5  # TODO(printer)  centre of the top edge, on the photo pages only
-  offset_mm: 4.5  # TODO(printer)  above the binding holes, with a gap between them
-  pages: [photo_back]  # TODO(printer)  every second page: the back of each sheet (not the cover)
+  enabled: true
+  shape: hole
+  diameter_mm: 5 #  template shows about 5 mm
+  x_mm: 148.5 #  centre of the top edge, on the photo pages only
+  offset_mm: 4.5 #  above the binding holes, with a gap between them
+  pages: [photo_back] #  every second page: the back of each sheet (not the cover)
 
 sides:
-  mode: duplex  # TODO(printer)
-  duplex_flip: long_edge  # binding is along the long edge, so the sheet turns over its long edge
-  back_content: next_month_photo  # blank | next_month_photo
-  final_back_photo: null  # back of the last sheet (December); null = January's photo (set per year)
+  mode: duplex
+  duplex_flip: long_edge # binding is along the long edge, so the sheet turns over its long edge
+  back_content: next_month_photo # blank | next_month_photo
+  final_back_photo: null # back of the last sheet (December); null = January's photo (set per year)
 
 colour:
-  mode: rgb  # TODO(printer)
-  profile: sRGB IEC61966-2.1  # TODO(printer)
+  mode: rgb
+  profile: sRGB IEC61966-2.1
 
 # Design choices (not printer requirements, so no TODO marker).
 layout:
-  mode: photo_over_grid  # facing_pages is declared for later; not implemented in v1
+  mode: photo_over_grid # facing_pages is declared for later; not implemented in v1
   caption:
-    placement: below_grid  # below_grid | beside_grid
+    placement: below_grid # below_grid | beside_grid
   spacing:
     title_height_mm: 14
     header_height_mm: 6
@@ -74,31 +74,31 @@ layout:
     gap_mm: 4
     caption_height_mm: 32
     caption_width_fraction: 0.34
-    caption_split_fraction: 0.36  # below the grid: name column share; description takes the rest
+    caption_split_fraction: 0.36 # below the grid: name column share; description takes the rest
     week_number_width_mm: 8
 
 photo:
-  fit: fill  # fill (uses focal point) | fit (whole photo, letterboxed)
+  fit: fill # fill (uses focal point) | fit (whole photo, letterboxed)
   border_mm: 0
   border_colour: "#FFFFFF"
   corner_radius_mm: 0
   ppi:
-    warn_below: 200  # effective PPI below this is a warning
-    good_at: 300  # effective PPI at or above this is "good"
-  max_crop_fraction: 0.15  # warn when a fill crop removes more than this share of an axis
-  low_quality:  # used by `build --low-quality` only; the output is marked not for printing
+    warn_below: 200 # effective PPI below this is a warning
+    good_at: 300 # effective PPI at or above this is "good"
+  max_crop_fraction: 0.15 # warn when a fill crop removes more than this share of an axis
+  low_quality: # used by `build --low-quality` only; the output is marked not for printing
     ppi: 150
     jpeg_quality: 75
 
 grid:
-  week_start: sunday  # monday | sunday
-  week_numbers: false  # ISO-8601 week number of the Monday in each row
-  show_adjacent_days: true  # greyed days from the previous / next month
+  week_start: sunday # monday | sunday
+  week_numbers: false # ISO-8601 week number of the Monday in each row
+  show_adjacent_days: true # greyed days from the previous / next month
   adjacent_day_colour: "#9E9E9E"
   weekend_shading: true
   weekend_colour: "#F2F2F2"
-  day_name_format: short  # short (Mon) | initial (M) | full (Monday)
-  rows: auto  # auto (5 or 6 as needed) | 6 (always six rows)
+  day_name_format: short # short (Mon) | initial (M) | full (Monday)
+  rows: auto # auto (5 or 6 as needed) | 6 (always six rows)
   notes_in_cells: true
   line_width_pt: 0.5
   line_colour: "#555555"
@@ -110,43 +110,141 @@ grid:
 
 # Fonts are PROVISIONAL until approved (see README). Each role names a font file under fonts/.
 fonts:
-  month_title: {file: fonts/Lora-SemiBold.ttf, size_pt: 36, min_size_pt: 24, colour: "#111111", align: left}
-  day_numbers: {file: fonts/SourceSans3-Regular.ttf, size_pt: 14, min_size_pt: 9, colour: "#111111", align: left}
-  day_names: {file: fonts/SourceSans3-Medium.ttf, size_pt: 10, min_size_pt: 7, colour: "#333333", align: centre}
-  bird_name: {file: fonts/Lora-SemiBold.ttf, size_pt: 20, min_size_pt: 14, colour: "#111111", align: left}
-  scientific_name: {file: fonts/Lora-Italic.ttf, size_pt: 11, min_size_pt: 8, colour: "#444444", align: left}
-  description: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 7, colour: "#222222", align: left}
-  holiday_label: {file: fonts/SourceSans3-SemiBold.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#000000", align: right}
-  event_label: {file: fonts/SourceSans3-Medium.ttf, size_pt: 7, min_size_pt: 5.5, colour: "#1A4F8B", align: right}
-  credit: {file: fonts/SourceSans3-Regular.ttf, size_pt: 7, min_size_pt: 6, colour: "#555555", align: right}
-  location: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#555555", align: left}
-  back_heading: {file: fonts/Lora-SemiBold.ttf, size_pt: 14, min_size_pt: 10, colour: "#FFFFFF", align: left}
-  back_name: {file: fonts/Lora-SemiBold.ttf, size_pt: 12, min_size_pt: 9, colour: "#FFFFFF", align: left}
-  back_body: {file: fonts/SourceSans3-Regular.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
-  back_appeal: {file: fonts/SourceSans3-Italic.ttf, size_pt: 10, min_size_pt: 8, colour: "#FFFFFF", align: left}
+  month_title:
+    {
+      file: fonts/Lora-SemiBold.ttf,
+      size_pt: 36,
+      min_size_pt: 24,
+      colour: "#111111",
+      align: left,
+    }
+  day_numbers:
+    {
+      file: fonts/SourceSans3-Regular.ttf,
+      size_pt: 14,
+      min_size_pt: 9,
+      colour: "#111111",
+      align: left,
+    }
+  day_names:
+    {
+      file: fonts/SourceSans3-Medium.ttf,
+      size_pt: 10,
+      min_size_pt: 7,
+      colour: "#333333",
+      align: centre,
+    }
+  bird_name:
+    {
+      file: fonts/Lora-SemiBold.ttf,
+      size_pt: 20,
+      min_size_pt: 14,
+      colour: "#111111",
+      align: left,
+    }
+  scientific_name:
+    {
+      file: fonts/Lora-Italic.ttf,
+      size_pt: 11,
+      min_size_pt: 8,
+      colour: "#444444",
+      align: left,
+    }
+  description:
+    {
+      file: fonts/SourceSans3-Regular.ttf,
+      size_pt: 10,
+      min_size_pt: 7,
+      colour: "#222222",
+      align: left,
+    }
+  holiday_label:
+    {
+      file: fonts/SourceSans3-SemiBold.ttf,
+      size_pt: 7,
+      min_size_pt: 5.5,
+      colour: "#000000",
+      align: right,
+    }
+  event_label:
+    {
+      file: fonts/SourceSans3-Medium.ttf,
+      size_pt: 7,
+      min_size_pt: 5.5,
+      colour: "#1A4F8B",
+      align: right,
+    }
+  credit:
+    {
+      file: fonts/SourceSans3-Regular.ttf,
+      size_pt: 7,
+      min_size_pt: 6,
+      colour: "#555555",
+      align: right,
+    }
+  location:
+    {
+      file: fonts/SourceSans3-Regular.ttf,
+      size_pt: 10,
+      min_size_pt: 8,
+      colour: "#555555",
+      align: left,
+    }
+  back_heading:
+    {
+      file: fonts/Lora-SemiBold.ttf,
+      size_pt: 14,
+      min_size_pt: 10,
+      colour: "#FFFFFF",
+      align: left,
+    }
+  back_name:
+    {
+      file: fonts/Lora-SemiBold.ttf,
+      size_pt: 12,
+      min_size_pt: 9,
+      colour: "#FFFFFF",
+      align: left,
+    }
+  back_body:
+    {
+      file: fonts/SourceSans3-Regular.ttf,
+      size_pt: 10,
+      min_size_pt: 8,
+      colour: "#FFFFFF",
+      align: left,
+    }
+  back_appeal:
+    {
+      file: fonts/SourceSans3-Italic.ttf,
+      size_pt: 10,
+      min_size_pt: 8,
+      colour: "#FFFFFF",
+      align: left,
+    }
 
 # Text on the back of the last sheet (December's back): photographer bios and a donation appeal.
 # The text is white on a semi-transparent black panel, so the photo still shows through. The
 # panel sits in a corner away from the subject.
 back_text:
   enabled: true
-  position: bottom_right  # top_left | top_right | bottom_left | bottom_right
+  position: bottom_right # top_left | top_right | bottom_left | bottom_right
   width_mm: 160
-  edge_mm: 5  # panel distance from the trim edge (the safe margin)
+  edge_mm: 5 # panel distance from the trim edge (the safe margin)
   padding_mm: 4
-  gap_mm: 1.5  # space between the heading, names, bios and appeal
+  gap_mm: 1.5 # space between the heading, names, bios and appeal
   panel_colour: "#000000"
-  panel_opacity: 0.6  # 1 = solid black; lower lets more of the photo show through
+  panel_opacity: 0.6 # 1 = solid black; lower lets more of the photo show through
 
 labels:
-  holiday: {prefix: "", suffix: ""}
-  event: {prefix: "• ", suffix: ""}
+  holiday: { prefix: "", suffix: "" }
+  event: { prefix: "• ", suffix: "" }
 
 pages:
   cover: true
-  cover_month: 1  # whose bird photo is on the cover
-  cover_photo: null  # a photo file for the cover instead of cover_month's photo (set per year)
-  back: false  # back page lists the year's holidays and events
+  cover_month: 1 # whose bird photo is on the cover
+  cover_photo: null # a photo file for the cover instead of cover_month's photo (set per year)
+  back: false # back page lists the year's holidays and events
 
 draft:
   # Placeholder size used for draft builds when a photo is missing (its pixels are unknown).
