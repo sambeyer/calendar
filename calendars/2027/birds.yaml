@@ -5,106 +5,111 @@ birds:
   - month: 1
     common_name: Rainbow Lorikeet
     scientific_name: Yeetus Lorikeetus
-    description:
+    description: >
+      The Rainbow Lorikeet is consistently listed as one of the most common
+      birds in Australia. This bird thrives in urban environments, and is
+      pictured here snacking on the nectar from a Grevillea flower.
     location: Jolon's old house, Mulgrave
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_1856-Enhanced-NR.jpg}
+    photo: { file: IMG_1856-Enhanced-NR.jpg }
   - month: 2
     common_name: Australian Gannet
     scientific_name: Gannetus Planetus
     description: >
-      Point Danger is home to Australia's only inland Gannet colony. It serves as overflow
-      from a nearby offshore colony, home to thousands of Gannets. As seen here, a pair of
-      mating gannets will rub their beaks together to strengthen their bond. A male Gannet
-      will court a partner by draping seaweed over her, a move Jolon has found unsuccessful
-      to date.
+      Gannet partners show affection by looking at the sky and gently touching
+      bills. Often, the male Gannet will drape seaweed over his partner, as a
+      gift of course.
     location: Gannet colony, Point Danger
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_9801.jpg}
+    photo: { file: IMG_9801.jpg }
   - month: 3
     common_name: Striated Grasswren
     scientific_name: Mister Grassus Wreni
     description: >
-      This photo was taken after stalking Grasswrens through Hattah by following their
-      quiet and high-pitched call. We learnt that you really do have to work for your
-      passerines. Astonishingly within the same five minutes, we independently captured
-      a Mallee Emuwren (not featured), an even more elusive wren.
+      This photo was taken after stalking Grasswrens through Hattah by following
+      their quiet and high-pitched call. We learnt that you really do have to
+      work for your passerines. Astonishingly within the same five minutes, we
+      independently captured a Mallee Emuwren (not featured), an even more
+      elusive wren.
     location: Hattah-Kulkyne National Park
     date_taken: null
     photo_credit: null
-    photo: {file: _DSC6819.jpg}
+    photo: { file: _DSC6819.jpg }
   - month: 4
     common_name: Freckled Duck
     scientific_name: Duckus Duckus Goosus
     description: >
-      "The nursery" at Braeside Park is famous for ducks and photo opportunities.
-      On this particular occasion many photographers with very expensive gear
-      completely missed one of Australia's rarest ducks right in front of them,
-      until we (Jolon) pointed them out. His ego is still recovering from the
-      incident.
+      Freckled ducks typically inhabit ephemeral lakes in the vast Australian
+      outback. This makes finding one in the wild a truly daunting task. Luckily
+      this Freckled duck landed near Melbourne. We have no idea why, but were
+      happy to see it.
     location: Braeside Park
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_2216.jpg}
+    photo: { file: IMG_2216.jpg }
   - month: 5
     common_name: Silvereye
     scientific_name: Ag Oculus
     description: >
-      Taken on an otherwise unsuccessful trip to the Howqua River, unless success includes
-      being very loud early in the morning after the campsite next to you was very loud
-      late at night.
+      Silvereye are found across the Pacific islands from Australia to Fiji.
+      They are a tiny and erratic bird, making photography difficult.
+      Fortunately this one was slowed down by the (relatively) enormous berry it
+      was trying to eat.
     location: Howqua near Fry's Flat
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_8848-Enhanced-NR.jpg}
+    photo: { file: IMG_8848-Enhanced-NR.jpg }
   - month: 6
     common_name: Crested Pigeon
     scientific_name: Pigeoerectus
     description: >
-      In true Ultimate Wingmen fashion this photo was taken after seeing a rainbow, taking the
-      first left, and stopping at the first bird we saw. Jolon got out, Sam rolled the Jimny
-      back to reveal the bird, and the rest is history.
+      A photo of a bird in front of a rainbow takes very careful planning, local
+      meteorological knowledge, and most of all - patience. We have none of
+      those things and this was blind luck.
     location: Just out of Echuca
     date_taken: null
     photo_credit: null
-    photo: {file: 1P2A6049.jpg}
+    photo: { file: 1P2A6049.jpg }
   - month: 7
     common_name: Red-capped Robin (female)
     scientific_name: Rossa Robina
     description: >
-      You can just barely see the red cap of this female Red-capped Robin, which is noticeably
-      less vivid than her male counterpart. To complete the washed out scene, she is
-      appropriately posed in front of ash from the Longwood fires in early 2026.
+      You can just barely see the red cap of this female Red-capped Robin, which
+      is noticeably less vivid than her male counterpart. To complete the washed
+      out scene, she is appropriately posed in front of ash from the Longwood
+      fires in early 2026.
     location: Euroa
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_1542.jpg}
+    photo: { file: IMG_1542.jpg }
   - month: 8
     common_name: Brolga
     scientific_name: Nota Flamingus
     description: >
-      Known by some as the emu of the wetlands this crane is known for its crane-like mating dance.
-      While not considered endangered, the range where Brolgas can be found is shrinking, particularly in
-      the south of Australia (which makes this photo slightly more notable).
+      It is estimated that there are fewer than 700 Brolgas remaining in the
+      south of Australia. Though, Jolon has seen them bonking on two seperate
+      occasions so hopefully numbers are on the up.
     location: Western Treatment Plant (the poo farm), Werribee
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_2058.jpg}
+    photo: { file: IMG_2058.jpg }
   - month: 9
     common_name: Swift Parrot
     scientific_name: Lathamus discolor
     description: >
-      The Swift Parrots migrate to Tasmania each year to breed. Their breeding grounds have been heavily
-      logged, as have the islands they rest at on their way between Tassie and the mainland. As a result
-      this bird is critically endangered with about 500 remaining. Although their situation isn't as dire
-      as the Orange-bellied Parrot (which shares the same breeding and migration pattern, featured in
-      September of last year's calendar), a lot of work is needed to ensure the survival of this species.
+      The Swift Parrots migrate to Tasmania each year to breed. Their breeding
+      grounds have been heavily logged, as have the islands they rest at on
+      their way between Tassie and the mainland. As a result this bird is
+      critically endangered with about 500 remaining. Although their situation
+      isn't as dire as the Orange-bellied Parrot (which shares the same breeding
+      and migration pattern, featured in September of last year's calendar), a
+      lot of work is needed to ensure the survival of this species.
     location: Plenty Gorge Park
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_4385.jpg}
+    photo: { file: IMG_4385.jpg }
   - month: 10
     common_name: Grey Teal
     scientific_name: We think
@@ -115,26 +120,25 @@ birds:
     location: Gemmills Swamp, Mooroopna
     date_taken: null
     photo_credit: null
-    photo: {file: _DSC5792.jpg}
+    photo: { file: _DSC5792.jpg }
   - month: 11
     common_name: Eastern Spinebill
     scientific_name: Lumbar williami
     description: >
-      This photo is our first calendar contribution from an honorary wingwoman.
-      In exchange she has promised to paint the cover of next year's calendar,
-      and save us from the photoshop crimes that surely would have been committed
-      otherwise.
+      This was taken by our friend, Emily Frye, who stole Jolon's camera on a
+      Grampians camping trip and then took a photo better than he could.
     location: Grampians National Park
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_1096.jpg}
+    photo: { file: IMG_1096.jpg }
   - month: 12
     common_name: Pink Robin
     scientific_name: Pinky Dinky
     description: >
-      This Pink Robin braved a snowy November morning. It just snuck into this year's calendar,
-      and thank goodness because we were running a little low on photos.
+      This Pink Robin braved a snowy November morning. It just snuck into this
+      year's calendar, and thank goodness because we were running a little low
+      on photos.
     location: Mt Donna Buang
     date_taken: null
     photo_credit: null
-    photo: {file: IMG_8320.jpg}
+    photo: { file: IMG_8320.jpg }
