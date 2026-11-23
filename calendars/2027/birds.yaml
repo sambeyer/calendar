@@ -8,7 +8,8 @@ birds:
     description: >
       The Rainbow Lorikeet is consistently listed as one of the most common
       birds in Australia. This bird thrives in urban environments, and is
-      pictured here snacking on the nectar from a Grevillea flower.
+      pictured here pictured here about to snack on the nectar from a Grevillea
+      flower.
     location: Jolon's old house, Mulgrave
     date_taken: null
     photo_credit: null
@@ -75,8 +76,8 @@ birds:
     scientific_name: Rossa Robina
     description: >
       The female Red-capped Robin is grey-brown, with only a faint hint of red
-      on the head. Here she is posed in front of ash from the Longwood fires in
-      early 2026.
+      on the head. Here she is posed in front of the pile of ash that used to be
+      her home after the devastating Longwood fires in early 2026.
     location: Euroa
     date_taken: null
     photo_credit: null
@@ -85,9 +86,9 @@ birds:
     common_name: Brolga
     scientific_name: Nota Flamingus
     description: >
-      It is estimated that there are fewer than 700 Brolgas remaining in the
-      south of Australia. Though, Jolon has seen them bonking on two separate
-      occasions, so hopefully numbers are on the up.
+      Brolgas found in the south of Australia are endangered with fewer than a
+      thousand remaining. These were found to be genetically distinct from the
+      stable population across the northern coast of Australia.
     location: Western Treatment Plant (the poo farm), Werribee
     date_taken: null
     photo_credit: null
@@ -106,10 +107,10 @@ birds:
   - month: 10
     common_name: Grey Teal
     scientific_name: We think
-    description: |
-      Thick mist permeates
-      The swamp whispers in your ear
-      Come my friend, come in
+    description: >
+      This is our 2027 spooky Halloween photo - a Grey Teal posing on a log in a
+      misty swamp in Mooroopna. Most Grey Teals are affable and distinguished,
+      but this one is planning a Satanic ritual.
     location: Gemmills Swamp, Mooroopna
     date_taken: null
     photo_credit: null
